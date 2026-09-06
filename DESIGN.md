@@ -56,9 +56,13 @@ which role dominates, not new fonts.
 
 | Role | Typeface | Why | Used for |
 |---|---|---|---|
-| **Display** | **Space Grotesk** | A proportional grotesk *derived from* Space Mono — carries technical/monospace DNA without the eye-fatigue of true-mono body text. Confident and distinctive at large sizes. | h1–h3, hero, section titles |
-| **Body / UI** | **Inter** | The research-neutral workhorse: best-in-class small-size legibility, variable, huge language coverage. Good body text *disappears*. | paragraphs, nav, buttons, form |
-| **Code / data** | **JetBrains Mono** | Strongest all-round mono: tallest lowercase (less eye travel), very legible, no aggressive quirks. | the C++ loop, code blocks, tech tags, stat numbers, eyebrows (UPPERCASE, tracked 0.25em), timestamps |
+| **System / brand** | **Space Grotesk** | A proportional grotesk *derived from* Space Mono — technical/monospace DNA without true-mono fatigue. | `voidloop-dev` mark, nav, `iam` line, experience period (stroked) |
+| **Editorial / human** | **Fraunces** (serif) | Deliberate role-reversal: the *person's* voice is a warm expressive serif against the cold system grotesk — this pairing (à la Chivo Mono + Fraunces) reads distinctive because the usual hierarchy is inverted. | the real name, section titles, project titles, social labels, footer email |
+| **Body / UI** | **Inter** | Research-neutral workhorse: best small-size legibility, variable, huge coverage. Good body text *disappears*. | paragraphs, form inputs |
+| **Code / data** | **JetBrains Mono** | Strongest all-round mono: tallest lowercase, very legible, no quirks. | the C++ loop, tech tags, eyebrows (UPPERCASE tracked), timeline years, phone, status lines |
+
+Four families, but each has one unambiguous job. The serif↔grotesk split is the
+main reason sections *feel* different without new fonts.
 
 Section flavour, same 3 fonts:
 

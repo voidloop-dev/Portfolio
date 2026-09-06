@@ -1,18 +1,21 @@
 import "./style.css";
-import { gsap } from "gsap";
+import { gsap } from "./lib/anim.ts";
 import { initVoid } from "./void-background.ts";
 import { runPreloader } from "./preloader.ts";
+import { initNav } from "./nav.ts";
+import { initSections } from "./sections.ts";
 
-const canvas = document.getElementById("void") as HTMLCanvasElement;
-initVoid(canvas);
+initVoid(document.getElementById("void") as HTMLCanvasElement);
 
-// lock scroll while the preloader is up
 document.body.style.overflow = "hidden";
 
 runPreloader(() => {
   const site = document.getElementById("site")!;
   site.hidden = false;
   document.body.style.overflow = "";
+
+  initNav();
+  initSections();
 
   const hero = site.querySelector(".hero")!;
   gsap.from(hero.children, {

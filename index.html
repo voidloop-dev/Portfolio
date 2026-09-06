@@ -4,15 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>voidloop-dev</title>
-    <meta name="description" content="voidloop-dev — portfolio" />
+    <meta name="description" content="voidloop-dev — full-stack & AI engineer" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
     <style>
-      /* critical: keeps things dark + centred before the bundle loads */
       html,
       body {
         margin: 0;
@@ -29,45 +28,166 @@
         justify-content: center;
         text-align: center;
       }
-      #site[hidden] {
-        display: none;
+      [hidden] {
+        display: none !important;
       }
     </style>
   </head>
   <body>
-    <!-- the void: a persistent scroll-reactive background behind everything -->
     <canvas id="void" aria-hidden="true"></canvas>
     <div class="grain" aria-hidden="true"></div>
 
-    <!-- preloader overlay -->
+    <!-- preloader -->
     <div id="preloader">
       <div class="pl-inner">
         <p class="pl-name">voidloop<span class="pl-dash">-</span>dev</p>
-
         <pre class="pl-loop" aria-hidden="true"><code><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt;= <span class="num">100</span>; ++i) {
     <span class="fn">load</span>(i);  <span class="cm">// i = <span id="pl-i">0</span></span>
 }</code></pre>
-
         <div class="pl-status">
           <span class="pl-loading">loading</span>
           <span class="pl-pct"><span id="pl-pct">0</span>%</span>
         </div>
-
-        <div class="pl-bar" role="progressbar" aria-label="loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div
+          class="pl-bar"
+          role="progressbar"
+          aria-label="loading"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
           <div class="pl-bar-fill" id="pl-fill"></div>
         </div>
       </div>
     </div>
 
-    <!-- the actual page (revealed after load) — placeholder for now -->
+    <!-- nav -->
+    <header id="nav" hidden>
+      <a class="nav-mark" href="#top">voidloop<span>-</span>dev</a>
+      <nav class="nav-links">
+        <a href="#about">About</a>
+        <a href="#skills">Skills</a>
+        <a href="#work">Work</a>
+        <a href="#experience">Experience</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
     <main id="site" hidden>
-      <section class="hero">
+      <!-- hero -->
+      <section class="hero" id="top">
         <p class="eyebrow">full-stack &amp; ai engineer</p>
-        <h1>voidloop<span class="accent">-</span>dev</h1>
+        <h1 class="hero-mark">voidloop<span class="accent">-</span>dev</h1>
         <p class="hero-sub">Signal in the void — the loop never really ends.</p>
         <p class="hero-hint">scroll</p>
       </section>
-      <section class="spacer"></section>
+
+      <!-- 01 · intro -->
+      <section class="section intro" id="about">
+        <div class="intro-grid">
+          <div class="intro-copy">
+            <p class="eyebrow reveal-fade">01 — who</p>
+            <p class="iam">
+              <span class="iam-lead">I am</span>
+              <span class="iam-rot"><span id="iam-word">a builder</span></span>
+            </p>
+            <h2 class="intro-name reveal-heading">Your Name</h2>
+            <div class="intro-lines reveal-fade">
+              <p>demo</p>
+              <p>demo</p>
+            </div>
+          </div>
+          <div class="intro-photo reveal-fade">
+            <div class="photo-frame">
+              <div class="photo-ph">portrait</div>
+              <svg class="photo-ring" viewBox="0 0 200 200" aria-hidden="true">
+                <defs>
+                  <path
+                    id="ringpath"
+                    d="M100,100 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0"
+                  />
+                </defs>
+                <text>
+                  <textPath href="#ringpath" startOffset="0">
+                    · FULL-STACK · AI · CREATIVE ENGINEER · BASED IN THE VOID&nbsp;
+                  </textPath>
+                </text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 02 · skills -->
+      <section class="section skills" id="skills">
+        <p class="eyebrow reveal-fade">02 — toolkit</p>
+        <h2 class="section-title reveal-heading">What I decode</h2>
+        <div class="skills-wrap" id="skills-wrap"></div>
+      </section>
+
+      <!-- 03 · work -->
+      <section class="section work" id="work">
+        <p class="eyebrow reveal-fade">03 — selected work</p>
+        <h2 class="section-title reveal-heading">Things I've shipped</h2>
+        <div class="timeline" id="work-timeline">
+          <div class="timeline-line"><div class="timeline-fill" id="work-fill"></div></div>
+        </div>
+      </section>
+
+      <!-- 04 · experience -->
+      <section class="section experience" id="experience">
+        <p class="eyebrow reveal-fade">04 — track record</p>
+        <h2 class="section-title reveal-heading">Where I've been</h2>
+        <div class="xp-list" id="xp-list"></div>
+      </section>
+
+      <!-- 05 · connect -->
+      <section class="section connect" id="connect">
+        <p class="eyebrow reveal-fade">05 — elsewhere</p>
+        <h2 class="section-title reveal-heading">Find me</h2>
+        <ul class="social-list" id="social-list"></ul>
+      </section>
+
+      <!-- 06 · contact -->
+      <section class="section contact" id="contact">
+        <p class="eyebrow reveal-fade">06 — transmit</p>
+        <h2 class="section-title reveal-heading">Send a signal</h2>
+        <form class="xmit" id="xmit" novalidate>
+          <div class="field">
+            <input type="text" id="f-name" name="name" placeholder=" " required />
+            <label for="f-name">Name</label>
+            <span class="field-bar"></span>
+          </div>
+          <div class="field">
+            <input type="email" id="f-email" name="email" placeholder=" " required />
+            <label for="f-email">Email</label>
+            <span class="field-bar"></span>
+          </div>
+          <div class="field">
+            <textarea id="f-msg" name="message" rows="4" placeholder=" " required></textarea>
+            <label for="f-msg">Message</label>
+            <span class="field-bar"></span>
+          </div>
+          <button type="submit" class="xmit-btn">
+            <span class="xmit-label">Transmit signal</span>
+            <span class="xmit-sweep" aria-hidden="true"></span>
+          </button>
+          <p class="xmit-status" id="xmit-status" role="status"></p>
+        </form>
+      </section>
+
+      <!-- footer -->
+      <footer id="footer">
+        <div class="footer-cta">
+          <p class="eyebrow">direct line</p>
+          <a class="footer-mail" href="mailto:you@example.com" id="footer-mail">you@example.com</a>
+          <a class="footer-phone" href="tel:+923000000000" id="footer-phone">+92 300 0000000</a>
+        </div>
+        <div class="footer-meta">
+          <span id="footer-year">© 2026 voidloop-dev</span>
+          <a href="#top">back to top ↑</a>
+        </div>
+      </footer>
     </main>
 
     <script type="module" src="/src/main.ts"></script>
