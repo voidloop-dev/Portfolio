@@ -5,6 +5,7 @@ import {
   playReveals,
   prepWordsDim,
   playWordsDim,
+  dimWords,
   scramble,
   magnetic,
 } from "./lib/anim.ts";
@@ -40,7 +41,7 @@ function initIntro() {
 
   let rotorStarted = false;
   plays.about = () => {
-    introLines.forEach((p, i) => playWordsDim(p, 0.2 + i * 0.35, 0.045));
+    introLines.forEach((p, i) => playWordsDim(p, 0.3 + i * 0.7, 0.08));
     if (!word || REDUCED || rotorStarted) return;
     rotorStarted = true;
     const roles = profile.roles;
@@ -161,14 +162,36 @@ function initWork() {
     return b;
   });
 
-  // line fill, tied to how far you've scrolled through the (internally-scrolling) page
   const page = document.getElementById("work")!;
+
+  // line fill, tied to how far you've scrolled through the (internally-scrolling) page
   const updateFill = () => {
     const max = page.scrollHeight - page.clientHeight;
     gsap.set(fill, { scaleY: max > 4 ? Math.min(page.scrollTop / max, 1) : 0 });
   };
   page.addEventListener("scroll", updateFill, { passive: true });
   window.addEventListener("resize", updateFill, { passive: true });
+
+  // each project's description does its dim→bright word reveal when THAT project
+  // scrolls into view; scroll away and back and it replays.
+  const shown = new Set<HTMLElement>();
+  const checkBlurbs = () => {
+    if (REDUCED || !page.classList.contains("slide--active")) return;
+    const vh = page.clientHeight;
+    for (const b of blurbs) {
+      if (!b) continue;
+      const top = b.getBoundingClientRect().top - page.getBoundingClientRect().top;
+      const inView = top < vh * 0.82 && top > vh * 0.05;
+      if (inView && !shown.has(b)) {
+        shown.add(b);
+        playWordsDim(b, 0, 0.055, 0.72);
+      } else if (!inView && shown.has(b)) {
+        shown.delete(b);
+        dimWords(b);
+      }
+    }
+  };
+  page.addEventListener("scroll", checkBlurbs, { passive: true });
 
   // hover-play demo video
   tl.querySelectorAll<HTMLVideoElement>(".proj-frame video").forEach((v) => {
@@ -183,12 +206,14 @@ function initWork() {
       blurbs.forEach((b) => b && gsap.set(b.querySelectorAll(".w-inner"), { clearProps: "all" }));
       return;
     }
+    shown.clear();
+    blurbs.forEach((b) => b && dimWords(b));
     cards.forEach((c, i) => {
-      const d = Math.min(i, 5) * 0.12; // cap so a long list still animates snappily
+      const d = Math.min(i, 5) * 0.12;
       gsap.to(c, { autoAlpha: 1, x: 0, duration: 0.75, ease: "power3.out", delay: d });
-      const b = blurbs[i];
-      if (b) playWordsDim(b, d + 0.3, 0.03);
     });
+    // reveal whatever's already in view once the page is up
+    gsap.delayedCall(0.35, checkBlurbs);
   };
 }
 

@@ -62,22 +62,22 @@ export function playWords(el: HTMLElement, delay = 0, speed = 0.03) {
   });
 }
 
-/** Reset + brighten body-text words one by one, dim → full. Runs regardless of
-   whether it's on screen. */
-export function playWordsDim(el: HTMLElement, delay = 0, speed = 0.04) {
+/** Reset + brighten body-text words one by one, dim → full. */
+export function playWordsDim(el: HTMLElement, delay = 0, speed = 0.06, dur = 0.62) {
   const inners = el.querySelectorAll(".w-inner");
   if (REDUCED) {
     gsap.set(inners, { clearProps: "all" });
     return;
   }
   gsap.set(inners, { opacity: DIM });
-  gsap.to(inners, {
-    opacity: 1,
-    duration: 0.5,
-    ease: "power2.out",
-    stagger: speed,
-    delay,
-  });
+  gsap.to(inners, { opacity: 1, duration: dur, ease: "power2.out", stagger: speed, delay });
+}
+
+/** Put an element's words back to the dim resting state. */
+export function dimWords(el: HTMLElement) {
+  if (REDUCED) return;
+  gsap.killTweensOf(el.querySelectorAll(".w-inner"));
+  gsap.set(el.querySelectorAll(".w-inner"), { opacity: DIM });
 }
 
 /* --- reveal registry: reveals grouped by section, played when the deck opens it --- */
