@@ -39,25 +39,25 @@
 
     <!-- preloader -->
     <div id="preloader">
+      <canvas class="pl-fx" aria-hidden="true"></canvas>
+      <div class="pl-shock" id="pl-shock" aria-hidden="true"></div>
       <div class="pl-inner">
         <p class="pl-name">voidloop<span class="pl-dash">-</span>dev</p>
-        <pre class="pl-loop" aria-hidden="true"><code><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt;= <span class="num">100</span>; ++i) {
-    <span class="fn">load</span>(i);  <span class="cm">// i = <span id="pl-i">0</span></span>
-}</code></pre>
-        <div class="pl-status">
-          <span class="pl-loading">loading</span>
-          <span class="pl-pct"><span id="pl-pct">0</span>%</span>
+
+        <div class="pl-count" aria-hidden="true">
+          <span id="pl-count">0</span><span class="pl-count-pct">%</span>
         </div>
-        <div
-          class="pl-bar"
-          role="progressbar"
-          aria-label="loading"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          aria-valuenow="0"
-        >
-          <div class="pl-bar-fill" id="pl-fill"></div>
-        </div>
+
+        <pre class="pl-loop" aria-hidden="true"><code><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">100</span>; ++i) {
+    signal.<span class="fn">emit</span>(<span id="pl-i">0</span>);
+<span id="pl-brace">}</span></code></pre>
+
+        <p class="pl-boot" id="pl-boot" role="status">&gt; booting void</p>
+
+        <button class="pl-hold" id="pl-hold" type="button" hidden>
+          <span class="pl-hold-fill" id="pl-hold-fill"></span>
+          <span class="pl-hold-label">press &amp; hold to enter</span>
+        </button>
       </div>
     </div>
 

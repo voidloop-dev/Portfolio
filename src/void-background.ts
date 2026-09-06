@@ -21,6 +21,12 @@ export function pulseWarp(strength = 1) {
   impulse?.(strength);
 }
 
+/** Sustained warp level from a 0..1 progress (used by the preloader). */
+let progressWarp = 0;
+export function setWarpProgress(p: number) {
+  progressWarp = (p < 0 ? 0 : p > 1 ? 1 : p) * 3.4;
+}
+
 export function initVoid(canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext("2d", { alpha: true })!;
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -105,7 +111,7 @@ export function initVoid(canvas: HTMLCanvasElement) {
     const cx = w / 2 + offX;
     const cy = h / 2 + offY;
     const breathe = 1 + 0.12 * Math.sin(t * 0.4);
-    const warp = reduce ? 0.02 : CRUISE * breathe + throttle + boost;
+    const warp = reduce ? 0.02 : CRUISE * breathe + throttle + boost + progressWarp;
 
     ctx.clearRect(0, 0, w, h);
     ctx.globalCompositeOperation = "lighter";
