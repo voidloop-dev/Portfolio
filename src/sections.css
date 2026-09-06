@@ -13,6 +13,17 @@
   display: inline-block;
   will-change: transform;
 }
+/* body-text word reveal (dim → bright): no clip, normal text flow */
+.intro-lines .w-outer,
+.proj-blurb .w-outer {
+  overflow: visible;
+  vertical-align: baseline;
+  padding-bottom: 0;
+}
+.intro-lines .w-inner,
+.proj-blurb .w-inner {
+  will-change: opacity;
+}
 
 /* ---------- paged deck: each section is a full-screen page ---------- */
 .slide {

@@ -3,8 +3,8 @@ import {
   REDUCED,
   queueReveal,
   playReveals,
-  prepWords,
-  playWords,
+  prepWordsDim,
+  playWordsDim,
   scramble,
   magnetic,
 } from "./lib/anim.ts";
@@ -33,14 +33,14 @@ function initIntro() {
   if (lines) {
     lines.innerHTML = profile.intro.map((l) => `<p>${l}</p>`).join("");
     lines.querySelectorAll<HTMLElement>("p").forEach((p) => {
-      prepWords(p);
+      prepWordsDim(p);
       introLines.push(p);
     });
   }
 
   let rotorStarted = false;
   plays.about = () => {
-    introLines.forEach((p, i) => playWords(p, 0.15 + i * 0.14, 0.02));
+    introLines.forEach((p, i) => playWordsDim(p, 0.2 + i * 0.35, 0.045));
     if (!word || REDUCED || rotorStarted) return;
     rotorStarted = true;
     const roles = profile.roles;
@@ -154,10 +154,10 @@ function initWork() {
       gsap.set(c, { autoAlpha: 0, x: c.classList.contains("proj--right") ? 48 : -48 }),
     );
   }
-  // project descriptions — word-by-word reveal, played per card
+  // project descriptions — word-by-word dim→bright, played per card
   const blurbs = cards.map((c) => {
     const b = c.querySelector<HTMLElement>(".proj-blurb");
-    if (b) prepWords(b);
+    if (b) prepWordsDim(b);
     return b;
   });
 
@@ -187,7 +187,7 @@ function initWork() {
       const d = Math.min(i, 5) * 0.12; // cap so a long list still animates snappily
       gsap.to(c, { autoAlpha: 1, x: 0, duration: 0.75, ease: "power3.out", delay: d });
       const b = blurbs[i];
-      if (b) playWords(b, d + 0.25, 0.014);
+      if (b) playWordsDim(b, d + 0.3, 0.03);
     });
   };
 }

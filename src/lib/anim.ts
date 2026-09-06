@@ -28,14 +28,23 @@ export function splitWords(el: HTMLElement): HTMLElement[] {
   return Array.from(el.querySelectorAll<HTMLElement>(".w-inner"));
 }
 
-/** Split, then hide each word ready to rise. Returns the inner spans. */
+const DIM = 0.14;
+
+/** Split a heading into clip-masked words, hidden below the mask. */
 export function prepWords(el: HTMLElement): HTMLElement[] {
   const inners = splitWords(el);
   if (!REDUCED) gsap.set(inners, { yPercent: 115, opacity: 0 });
   return inners;
 }
 
-/** Reset, then stagger the words of a prepped element up into view (replays every call). */
+/** Split body text into words that sit dim on screen (no layout shift). */
+export function prepWordsDim(el: HTMLElement): HTMLElement[] {
+  const inners = splitWords(el);
+  if (!REDUCED) gsap.set(inners, { opacity: DIM });
+  return inners;
+}
+
+/** Reset + stagger a heading's words up into view (clip-mask rise). */
 export function playWords(el: HTMLElement, delay = 0, speed = 0.03) {
   const inners = el.querySelectorAll(".w-inner");
   if (REDUCED) {
@@ -48,6 +57,24 @@ export function playWords(el: HTMLElement, delay = 0, speed = 0.03) {
     opacity: 1,
     duration: 0.62,
     ease: "power3.out",
+    stagger: speed,
+    delay,
+  });
+}
+
+/** Reset + brighten body-text words one by one, dim → full. Runs regardless of
+   whether it's on screen. */
+export function playWordsDim(el: HTMLElement, delay = 0, speed = 0.04) {
+  const inners = el.querySelectorAll(".w-inner");
+  if (REDUCED) {
+    gsap.set(inners, { clearProps: "all" });
+    return;
+  }
+  gsap.set(inners, { opacity: DIM });
+  gsap.to(inners, {
+    opacity: 1,
+    duration: 0.5,
+    ease: "power2.out",
     stagger: speed,
     delay,
   });
