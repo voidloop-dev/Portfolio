@@ -97,18 +97,37 @@ export function initDeck() {
     return dir === 1 ? !atBottom : !atTop;
   }
 
-  // --- wheel
-  let wheelLock = false;
+  // --- wheel: at a page edge you must keep pushing past it (build up "intent")
+  // before it changes page — so scrolling to read the last/first line doesn't
+  // immediately fling you to the next section.
+  const EDGE_PUSH = 200;
+  let edgeAccum = 0;
+  let edgeDir: 1 | -1 = 1;
+  let edgeTimer = 0;
   window.addEventListener(
     "wheel",
     (e) => {
       const dir: 1 | -1 = e.deltaY > 0 ? 1 : -1;
-      if (canScrollInside(dir)) return; // let the page scroll normally
+      if (canScrollInside(dir)) {
+        edgeAccum = 0;
+        return; // let the page scroll normally
+      }
       e.preventDefault();
-      if (busy || wheelLock || Math.abs(e.deltaY) < 6) return;
-      wheelLock = true;
-      window.setTimeout(() => (wheelLock = false), 140);
-      go(dir);
+      if (busy) {
+        edgeAccum = 0;
+        return;
+      }
+      if (dir !== edgeDir) {
+        edgeDir = dir;
+        edgeAccum = 0;
+      }
+      edgeAccum += Math.abs(e.deltaY);
+      window.clearTimeout(edgeTimer);
+      edgeTimer = window.setTimeout(() => (edgeAccum = 0), 320);
+      if (edgeAccum >= EDGE_PUSH) {
+        edgeAccum = 0;
+        go(dir);
+      }
     },
     { passive: false },
   );
@@ -132,7 +151,7 @@ export function initDeck() {
     "touchend",
     (e) => {
       const dy = ty - (e.changedTouches[0]?.clientY ?? ty);
-      if (Math.abs(dy) < 55) return;
+      if (Math.abs(dy) < 90) return; // a deliberate swipe, not a nudge
       const dir: 1 | -1 = dy > 0 ? 1 : -1;
       if (!canScrollInside(dir)) go(dir);
     },

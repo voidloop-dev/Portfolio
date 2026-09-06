@@ -5,6 +5,7 @@ import {
   playReveals,
   prepWords,
   playWords,
+  scramble,
   magnetic,
 } from "./lib/anim.ts";
 import { profile, socials, skillGroups, projects, experience } from "./content.ts";
@@ -71,37 +72,44 @@ function initSkills() {
     .map(
       (g) => `
       <div class="skill-group" tabindex="0">
-        <p class="skill-group-name">${g.name}</p>
+        <p class="skill-group-name" data-label="${g.name}">${g.name}</p>
         <ul class="skill-tags">
           ${g.items
-            .map(
-              (s, i) =>
-                `<li class="skill-tag" style="--i:${i}"><span>${s}</span></li>`,
-            )
+            .map((s, i) => `<li class="skill-tag" style="--i:${i}"><span>${s}</span></li>`)
             .join("")}
         </ul>
       </div>`,
     )
     .join("");
 
-  // rows are dull with their heads visible; hovering a head reveals that row's
-  // tags (text-rise) and lights it up — all handled in CSS. JS only does the
-  // section-entrance stagger of the heads.
+  // rows are dull with just their (boxed) heads; hovering a head lights the row
+  // and its tags rise in — CSS. JS: stagger the heads in on open + decode each
+  // head's letters (the earlier scramble effect), and re-decode on hover.
   const groups = Array.from(wrap.querySelectorAll<HTMLElement>(".skill-group"));
+  const heads = Array.from(wrap.querySelectorAll<HTMLElement>(".skill-group-name"));
   if (!REDUCED) gsap.set(groups, { autoAlpha: 0, y: 18 });
+
+  heads.forEach((h) => {
+    const label = h.dataset.label ?? h.textContent ?? "";
+    let busy = false;
+    const grp = h.closest(".skill-group")!;
+    grp.addEventListener("pointerenter", () => {
+      if (busy || REDUCED) return;
+      busy = true;
+      scramble(h, label, 340);
+      gsap.delayedCall(0.4, () => (busy = false));
+    });
+  });
 
   plays.skills = () => {
     if (REDUCED) {
       gsap.set(groups, { clearProps: "all" });
       return;
     }
-    gsap.to(groups, {
-      autoAlpha: 1,
-      y: 0,
-      duration: 0.5,
-      ease: "power3.out",
-      stagger: 0.07,
-    });
+    gsap.to(groups, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out", stagger: 0.07 });
+    heads.forEach((h, i) =>
+      gsap.delayedCall(0.15 + i * 0.07, () => scramble(h, h.dataset.label ?? "", 460)),
+    );
   };
 }
 

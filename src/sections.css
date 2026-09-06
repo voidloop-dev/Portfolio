@@ -24,7 +24,9 @@
   justify-content: safe center;
   align-items: center;
   gap: var(--s-3);
-  padding: calc(var(--s-9) + 32px) var(--s-5) var(--s-8);
+  /* generous runway top & bottom so you can scroll to settle and read before
+     the edge triggers a page change */
+  padding: max(17vh, 128px) var(--s-5) max(20vh, 140px);
   overflow-y: auto;
   overscroll-behavior: contain;
   opacity: 0;
@@ -280,19 +282,26 @@ html.reduced-deck .slide {
   }
 }
 .skill-group-name {
+  justify-self: start;
+  display: inline-block;
   font-family: var(--font-mono);
   font-size: var(--step--1);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-3);
   margin: 0;
-  transition: color 0.35s ease, letter-spacing 0.35s ease;
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  transition: color 0.35s ease, border-color 0.35s ease, background 0.35s ease;
 }
 .skill-group:hover .skill-group-name,
 .skill-group:focus-visible .skill-group-name,
 .skill-group:focus-within .skill-group-name {
   color: var(--signal);
-  letter-spacing: 0.22em;
+  border-color: var(--signal-dim);
+  background: color-mix(in srgb, var(--signal) 10%, transparent);
 }
 .skill-tags {
   list-style: none;
