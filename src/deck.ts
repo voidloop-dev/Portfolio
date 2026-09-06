@@ -89,6 +89,9 @@ export function initDeck() {
 
   const go = (dir: 1 | -1) => transition(active + dir, dir);
 
+  /** true while the project-preview overlay is open — deck ignores input then. */
+  const locked = () => document.documentElement.dataset.pm != null;
+
   /** true when the active page still has room to scroll in `dir`. */
   function canScrollInside(dir: 1 | -1) {
     const s = slides[active]!;
@@ -107,6 +110,7 @@ export function initDeck() {
   window.addEventListener(
     "wheel",
     (e) => {
+      if (locked()) return;
       const dir: 1 | -1 = e.deltaY > 0 ? 1 : -1;
       if (canScrollInside(dir)) {
         edgeAccum = 0;
@@ -134,6 +138,7 @@ export function initDeck() {
 
   // --- keys
   window.addEventListener("keydown", (e) => {
+    if (locked()) return;
     const down = e.key === "ArrowDown" || e.key === "PageDown" || (e.key === " " && !e.shiftKey);
     const up = e.key === "ArrowUp" || e.key === "PageUp" || (e.key === " " && e.shiftKey);
     if (!down && !up) return;
@@ -150,6 +155,7 @@ export function initDeck() {
   window.addEventListener(
     "touchend",
     (e) => {
+      if (locked()) return;
       const dy = ty - (e.changedTouches[0]?.clientY ?? ty);
       if (Math.abs(dy) < 90) return; // a deliberate swipe, not a nudge
       const dir: 1 | -1 = dy > 0 ? 1 : -1;

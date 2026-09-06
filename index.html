@@ -183,6 +183,27 @@
       </section>
     </main>
 
+    <!-- project preview — an in-page overlay, not a separate page -->
+    <div
+      class="proj-modal"
+      id="proj-modal"
+      hidden
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="pm-title"
+    >
+      <div class="proj-modal-scrim" data-pm-close></div>
+      <div class="proj-modal-panel">
+        <button class="proj-modal-back" type="button" data-pm-close>← back</button>
+        <div class="proj-modal-media" id="pm-media"></div>
+        <div class="proj-modal-meta">
+          <h3 class="proj-modal-title" id="pm-title"></h3>
+          <p class="proj-modal-blurb" id="pm-blurb"></p>
+          <div class="proj-modal-links" id="pm-links"></div>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -423,12 +423,16 @@ html.reduced-deck .skill-tag > span {
 }
 
 .proj-frame {
+  display: block;
+  width: 100%;
+  padding: 0;
   position: relative;
   aspect-ratio: 16 / 10;
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
   background: var(--surface);
+  cursor: pointer;
   transition: border-color 0.3s ease, transform 0.3s ease;
 }
 .proj-frame::after {
@@ -448,11 +452,13 @@ html.reduced-deck .skill-tag > span {
 .proj-frame-ph {
   transition: transform 0.5s cubic-bezier(0.2, 0, 0.1, 1);
 }
-.proj:hover .proj-frame {
+.proj:hover .proj-frame,
+.proj-frame:focus-visible {
   border-color: var(--signal-dim);
   transform: translateY(-3px);
 }
-.proj:hover .proj-frame::after {
+.proj:hover .proj-frame::after,
+.proj-frame:focus-visible::after {
   opacity: 1;
   transform: translateY(0);
 }
@@ -811,4 +817,99 @@ html.reduced-deck .skill-tag > span {
 }
 .footer-meta a:hover {
   color: var(--signal);
+}
+
+/* ---------- project preview overlay ---------- */
+.proj-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-5);
+}
+.proj-modal-scrim {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter: blur(6px);
+}
+.proj-modal-panel {
+  position: relative;
+  z-index: 1;
+  width: min(640px, 92vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: var(--s-4);
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.6);
+}
+.proj-modal-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-bottom: var(--s-3);
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.proj-modal-back:hover {
+  color: var(--signal);
+  border-color: var(--signal-dim);
+}
+.proj-modal-media {
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.proj-modal-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pm-media-ph {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.2em;
+  color: var(--text-3);
+}
+.proj-modal-meta {
+  padding: var(--s-4) var(--s-2) var(--s-2);
+}
+.proj-modal-title {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: var(--step-2);
+  color: var(--signal);
+  margin: 0 0 var(--s-2);
+}
+.proj-modal-blurb {
+  color: var(--text-2);
+  line-height: 1.6;
+  margin: 0 0 var(--s-3);
+}
+.proj-modal-links a {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--signal);
+  text-decoration: none;
+}
+.proj-modal-links a:hover {
+  color: var(--amber);
 }

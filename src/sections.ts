@@ -10,6 +10,7 @@ import {
   magnetic,
 } from "./lib/anim.ts";
 import { profile, socials, skillGroups, projects, experience } from "./content.ts";
+import { initProjModal, openProjModal } from "./proj-modal.ts";
 
 /** Per-section "play" fns for dynamic inner content — run when the section opens. */
 const plays: Record<string, () => void> = {};
@@ -126,14 +127,14 @@ function initWork() {
       .map((p, i) => {
         const side = i % 2 === 0 ? "right" : "left";
         const frame = `
-          <div class="proj-frame">
+          <button class="proj-frame" type="button" data-proj="${i}" aria-label="Preview ${p.title}">
             ${
               p.video
                 ? `<video src="${p.video}" muted loop playsinline preload="metadata"></video>`
                 : `<div class="proj-frame-ph"><span>▶ demo</span></div>`
             }
             <span class="proj-year">${p.year}</span>
-          </div>`;
+          </button>`;
         const body = `
           <div class="proj-body">
             <a class="proj-title" href="${p.href}">${p.title}</a>
@@ -192,6 +193,12 @@ function initWork() {
     }
   };
   page.addEventListener("scroll", checkBlurbs, { passive: true });
+
+  // click a frame → in-page preview overlay
+  initProjModal(projects);
+  tl.querySelectorAll<HTMLElement>(".proj-frame").forEach((f) => {
+    f.addEventListener("click", () => openProjModal(Number(f.dataset.proj)));
+  });
 
   // hover-play demo video
   tl.querySelectorAll<HTMLVideoElement>(".proj-frame video").forEach((v) => {
