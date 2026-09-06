@@ -67,9 +67,9 @@ export function initVoid(canvas: HTMLCanvasElement) {
 
   const onResize = () => build();
 
-  // the burst — one hit per section change, then it decays back to cruise
+  // the burst — one hit per section change: jump to hyperspace, then decay to cruise
   impulse = (strength: number) => {
-    boost = Math.min(boost + strength * 2.6, 4);
+    boost = Math.min(boost + strength * 7.5, 9.5);
   };
 
   function onPointerMove(e: PointerEvent) {

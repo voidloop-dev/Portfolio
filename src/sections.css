@@ -22,6 +22,18 @@
   margin: 0 auto;
   padding: var(--s-9) var(--s-5);
 }
+
+/* section gating: hidden (but keeps layout) until the warp transition reveals it */
+[data-gate="closed"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+[data-gate="open"] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s ease;
+}
 .section-title {
   font-family: var(--font-serif);
   font-weight: 500;
@@ -121,12 +133,12 @@
 }
 .iam {
   font-family: var(--font-display);
-  font-size: var(--step-3);
+  font-size: var(--step-2);
   font-weight: 500;
   display: flex;
   align-items: baseline;
   gap: 0.4em;
-  margin: var(--s-4) 0 var(--s-3);
+  margin: 0 0 var(--s-5);
 }
 .iam-lead {
   color: var(--text-2);
@@ -148,7 +160,7 @@
   font-size: var(--step-5);
   line-height: 1;
   letter-spacing: -0.02em;
-  margin: 0 0 var(--s-5);
+  margin: var(--s-3) 0 var(--s-4);
 }
 .intro-lines {
   max-width: 34rem;
@@ -395,20 +407,20 @@
 .proj-body .proj-title {
   position: relative;
   font-family: var(--font-serif);
-  font-weight: 500;
+  font-weight: 600;
   font-size: var(--step-2);
-  color: var(--text);
+  color: var(--signal);
   text-decoration: none;
   display: inline-block;
   margin-bottom: var(--s-2);
-  background-image: linear-gradient(var(--signal), var(--signal));
+  background-image: linear-gradient(var(--amber), var(--amber));
   background-size: 0% 1px;
   background-position: 0 100%;
   background-repeat: no-repeat;
   transition: background-size 0.3s ease, color 0.3s ease;
 }
 .proj-body .proj-title:hover {
-  color: var(--signal);
+  color: var(--amber);
   background-size: 100% 1px;
 }
 .proj--left .proj-body .proj-title {

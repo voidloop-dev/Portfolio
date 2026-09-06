@@ -28,30 +28,55 @@ export function splitWords(el: HTMLElement): HTMLElement[] {
   return Array.from(el.querySelectorAll<HTMLElement>(".w-inner"));
 }
 
-/** Heading word-reveal on scroll-in. Reversible. */
-export function revealHeading(el: HTMLElement) {
-  const words = splitWords(el);
-  if (REDUCED) return;
-  gsap.from(words, {
-    yPercent: 120,
-    opacity: 0,
-    duration: 0.7,
-    ease: "power3.out",
-    stagger: 0.05,
-    scrollTrigger: { trigger: el, start: "top 82%", toggleActions: "play none none reverse" },
-  });
+/* --- reveal registry: reveals are grouped by section and played on demand
+   (the section-transition controller fires them once the warp peaks) --- */
+type RevealKind = "heading" | "fade";
+const revealRegistry = new Map<string, { el: HTMLElement; kind: RevealKind }[]>();
+
+function sectionIdOf(el: Element): string {
+  return el.closest("section, footer")?.id || "_";
 }
 
-/** Generic fade-up-on-scroll for an element. */
-export function revealFade(el: Element, extra: gsap.TweenVars = {}) {
+/** Register an element to be revealed when its section opens. Sets it hidden now. */
+export function queueReveal(el: HTMLElement, kind: RevealKind) {
+  if (kind === "heading") splitWords(el);
+  const id = sectionIdOf(el);
+  const arr = revealRegistry.get(id) ?? [];
+  arr.push({ el, kind });
+  revealRegistry.set(id, arr);
   if (REDUCED) return;
-  gsap.from(el, {
-    y: 26,
-    opacity: 0,
-    duration: 0.7,
-    ease: "power3.out",
-    ...extra,
-    scrollTrigger: { trigger: el, start: "top 86%", toggleActions: "play none none reverse" },
+  if (kind === "heading") gsap.set(el.querySelectorAll(".w-inner"), { yPercent: 120, opacity: 0 });
+  else gsap.set(el, { autoAlpha: 0, y: 24 });
+}
+
+/** Play (or, if already played, replay) the reveals for one section. */
+export function playReveals(sectionId: string) {
+  const arr = revealRegistry.get(sectionId);
+  if (!arr) return;
+  arr.forEach(({ el, kind }, i) => {
+    if (REDUCED) {
+      if (kind === "heading") gsap.set(el.querySelectorAll(".w-inner"), { clearProps: "all" });
+      else gsap.set(el, { clearProps: "all" });
+      return;
+    }
+    if (kind === "heading") {
+      gsap.to(el.querySelectorAll(".w-inner"), {
+        yPercent: 0,
+        opacity: 1,
+        duration: 0.7,
+        ease: "power3.out",
+        stagger: 0.05,
+        delay: 0.04 + i * 0.03,
+      });
+    } else {
+      gsap.to(el, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power3.out",
+        delay: 0.04 + i * 0.05,
+      });
+    }
   });
 }
 

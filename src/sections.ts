@@ -2,61 +2,56 @@ import {
   gsap,
   ScrollTrigger,
   REDUCED,
-  revealHeading,
-  revealFade,
+  queueReveal,
+  playReveals,
   scramble,
-  onEnter,
   magnetic,
 } from "./lib/anim.ts";
 import { profile, socials, skillGroups, projects, experience } from "./content.ts";
 
-/* ----------------------------------------------------------------
-   headings + eyebrows: reveal on scroll
-   ---------------------------------------------------------------- */
+/** Per-section "play" fns for dynamic inner content — run when the section opens. */
+const plays: Record<string, () => void> = {};
+
+/* ---------------- headings + eyebrows ---------------- */
 function initReveals() {
-  document.querySelectorAll<HTMLElement>(".reveal-heading").forEach(revealHeading);
-  document.querySelectorAll<HTMLElement>(".reveal-fade").forEach((el) => revealFade(el));
+  document.querySelectorAll<HTMLElement>(".reveal-heading").forEach((el) => queueReveal(el, "heading"));
+  document.querySelectorAll<HTMLElement>(".reveal-fade").forEach((el) => queueReveal(el, "fade"));
 }
 
-/* ----------------------------------------------------------------
-   01 · intro — "I am <word>" rotator + slow curved ring
-   ---------------------------------------------------------------- */
+/* ---------------- 01 · intro ---------------- */
 function initIntro() {
   const name = document.querySelector<HTMLElement>(".intro-name");
+  const lines = document.querySelector(".intro-lines");
+  const word = document.querySelector<HTMLElement>("#iam-word");
+  if (lines) lines.innerHTML = profile.intro.map((l) => `<p>${l}</p>`).join("");
+  if (word) word.textContent = profile.roles[0]!;
+  // name text is set before queueReveal splits it — do it here, before initReveals
   if (name) name.textContent = profile.name;
 
-  const lines = document.querySelector(".intro-lines");
-  if (lines) lines.innerHTML = profile.intro.map((l) => `<p>${l}</p>`).join("");
-
-  const word = document.querySelector<HTMLElement>("#iam-word");
-  if (word) {
+  plays.about = () => {
+    if (!word || REDUCED) return;
     const roles = profile.roles;
-    word.textContent = roles[0]!;
-    if (!REDUCED) {
-      let i = 0;
-      const cycle = () => {
-        i = (i + 1) % roles.length;
-        gsap
-          .timeline()
-          .to(word, { yPercent: -110, opacity: 0, duration: 0.32, ease: "power2.in" })
-          .add(() => (word.textContent = roles[i]!))
-          .fromTo(
-            word,
-            { yPercent: 110, opacity: 0 },
-            { yPercent: 0, opacity: 1, duration: 0.42, ease: "power3.out" },
-          );
-      };
-      gsap.delayedCall(2.2, function loop() {
-        cycle();
-        gsap.delayedCall(2.6, loop);
-      });
-    }
-  }
+    let i = 0;
+    const cycle = () => {
+      i = (i + 1) % roles.length;
+      gsap
+        .timeline()
+        .to(word, { yPercent: -110, opacity: 0, duration: 0.32, ease: "power2.in" })
+        .add(() => (word.textContent = roles[i]!))
+        .fromTo(
+          word,
+          { yPercent: 110, opacity: 0 },
+          { yPercent: 0, opacity: 1, duration: 0.42, ease: "power3.out" },
+        );
+    };
+    gsap.delayedCall(2.4, function loop() {
+      cycle();
+      gsap.delayedCall(2.8, loop);
+    });
+  };
 }
 
-/* ----------------------------------------------------------------
-   02 · skills — grid of tags that "decode" in, grouped by domain
-   ---------------------------------------------------------------- */
+/* ---------------- 02 · skills ---------------- */
 function initSkills() {
   const wrap = document.querySelector<HTMLElement>("#skills-wrap");
   if (!wrap) return;
@@ -73,21 +68,10 @@ function initSkills() {
     .join("");
 
   const tags = Array.from(wrap.querySelectorAll<HTMLElement>(".skill-tag"));
-  tags.forEach((tag, idx) => {
+  if (!REDUCED) gsap.set(tags, { autoAlpha: 0, y: 14 });
+
+  tags.forEach((tag) => {
     const label = tag.dataset.skill ?? tag.textContent ?? "";
-    onEnter(
-      tag,
-      () => {
-        gsap.fromTo(
-          tag,
-          { opacity: 0, y: 14 },
-          { opacity: 1, y: 0, duration: 0.4, ease: "power2.out", delay: (idx % 6) * 0.05 },
-        );
-        gsap.delayedCall((idx % 6) * 0.05, () => scramble(tag, label, 520));
-      },
-      "top 92%",
-    );
-    // re-decode on hover
     let busy = false;
     tag.addEventListener("pointerenter", () => {
       if (busy || REDUCED) return;
@@ -96,44 +80,63 @@ function initSkills() {
       gsap.delayedCall(0.4, () => (busy = false));
     });
   });
+
+  plays.skills = () => {
+    if (REDUCED) {
+      gsap.set(tags, { clearProps: "all" });
+      return;
+    }
+    tags.forEach((tag, idx) => {
+      const d = (idx % 6) * 0.05 + Math.floor(idx / 6) * 0.08;
+      gsap.to(tag, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power2.out", delay: d });
+      gsap.delayedCall(d, () => scramble(tag, tag.dataset.skill ?? "", 520));
+    });
+  };
 }
 
-/* ----------------------------------------------------------------
-   03 · work — centre line that fills as you scroll; cards alternate
-   ---------------------------------------------------------------- */
+/* ---------------- 03 · work ---------------- */
 function initWork() {
   const tl = document.querySelector<HTMLElement>("#work-timeline");
   const fill = document.querySelector<HTMLElement>("#work-fill");
   if (!tl || !fill) return;
 
-  const cards = projects
-    .map((p, i) => {
-      const side = i % 2 === 0 ? "right" : "left";
-      const frame = `
-        <div class="proj-frame">
-          ${
-            p.video
-              ? `<video src="${p.video}" muted loop playsinline preload="metadata"></video>`
-              : `<div class="proj-frame-ph"><span>▶ demo</span></div>`
-          }
-          <span class="proj-year">${p.year}</span>
-        </div>`;
-      const body = `
-        <div class="proj-body">
-          <a class="proj-title" href="${p.href}">${p.title}</a>
-          <p class="proj-blurb">${p.blurb}</p>
-          <ul class="proj-tech">${p.tech.map((t) => `<li>${t}</li>`).join("")}</ul>
-        </div>`;
-      return `
-        <article class="proj proj--${side}">
-          <span class="proj-node"></span>
-          ${side === "right" ? body + frame : frame + body}
-        </article>`;
-    })
-    .join("");
-  tl.insertAdjacentHTML("beforeend", cards);
+  tl.insertAdjacentHTML(
+    "beforeend",
+    projects
+      .map((p, i) => {
+        const side = i % 2 === 0 ? "right" : "left";
+        const frame = `
+          <div class="proj-frame">
+            ${
+              p.video
+                ? `<video src="${p.video}" muted loop playsinline preload="metadata"></video>`
+                : `<div class="proj-frame-ph"><span>▶ demo</span></div>`
+            }
+            <span class="proj-year">${p.year}</span>
+          </div>`;
+        const body = `
+          <div class="proj-body">
+            <a class="proj-title" href="${p.href}">${p.title}</a>
+            <p class="proj-blurb">${p.blurb}</p>
+            <ul class="proj-tech">${p.tech.map((t) => `<li>${t}</li>`).join("")}</ul>
+          </div>`;
+        return `
+          <article class="proj proj--${side}">
+            <span class="proj-node"></span>
+            ${side === "right" ? body + frame : frame + body}
+          </article>`;
+      })
+      .join(""),
+  );
 
-  // the line fill, scrubbed to section progress
+  const cards = Array.from(tl.querySelectorAll<HTMLElement>(".proj"));
+  if (!REDUCED) {
+    cards.forEach((c) =>
+      gsap.set(c, { autoAlpha: 0, x: c.classList.contains("proj--right") ? 48 : -48 }),
+    );
+  }
+
+  // line fill, scrubbed to section progress
   ScrollTrigger.create({
     trigger: tl,
     start: "top 55%",
@@ -142,29 +145,25 @@ function initWork() {
     onUpdate: (self) => gsap.set(fill, { scaleY: self.progress }),
   });
 
-  if (REDUCED) return;
-  tl.querySelectorAll<HTMLElement>(".proj").forEach((card) => {
-    const fromX = card.classList.contains("proj--right") ? 48 : -48;
-    gsap.from(card, {
-      x: fromX,
-      opacity: 0,
-      duration: 0.8,
-      ease: "power3.out",
-      scrollTrigger: { trigger: card, start: "top 80%", toggleActions: "play none none reverse" },
-    });
-  });
-
-  // play the demo video on hover
+  // hover-play demo video
   tl.querySelectorAll<HTMLVideoElement>(".proj-frame video").forEach((v) => {
     const host = v.closest(".proj-frame")!;
     host.addEventListener("pointerenter", () => void v.play().catch(() => {}));
     host.addEventListener("pointerleave", () => v.pause());
   });
+
+  plays.work = () => {
+    if (REDUCED) {
+      gsap.set(cards, { clearProps: "all" });
+      return;
+    }
+    cards.forEach((c, i) =>
+      gsap.to(c, { autoAlpha: 1, x: 0, duration: 0.75, ease: "power3.out", delay: i * 0.12 }),
+    );
+  };
 }
 
-/* ----------------------------------------------------------------
-   04 · experience — big outlined period + details slide in
-   ---------------------------------------------------------------- */
+/* ---------------- 04 · experience ---------------- */
 function initExperience() {
   const list = document.querySelector<HTMLElement>("#xp-list");
   if (!list) return;
@@ -181,28 +180,39 @@ function initExperience() {
     )
     .join("");
 
-  if (REDUCED) return;
-  list.querySelectorAll<HTMLElement>(".xp").forEach((row) => {
-    gsap.from(row.querySelector(".xp-period"), {
-      x: -40,
-      opacity: 0,
-      duration: 0.7,
-      ease: "power3.out",
-      scrollTrigger: { trigger: row, start: "top 82%", toggleActions: "play none none reverse" },
+  const rows = Array.from(list.querySelectorAll<HTMLElement>(".xp"));
+  if (!REDUCED) {
+    rows.forEach((r) => {
+      gsap.set(r.querySelector(".xp-period"), { autoAlpha: 0, x: -40 });
+      gsap.set(r.querySelector(".xp-detail"), { autoAlpha: 0, x: 40 });
     });
-    gsap.from(row.querySelector(".xp-detail"), {
-      x: 40,
-      opacity: 0,
-      duration: 0.7,
-      ease: "power3.out",
-      scrollTrigger: { trigger: row, start: "top 82%", toggleActions: "play none none reverse" },
+  }
+
+  plays.experience = () => {
+    if (REDUCED) {
+      rows.forEach((r) => gsap.set(r.children, { clearProps: "all" }));
+      return;
+    }
+    rows.forEach((r, i) => {
+      gsap.to(r.querySelector(".xp-period"), {
+        autoAlpha: 1,
+        x: 0,
+        duration: 0.7,
+        ease: "power3.out",
+        delay: i * 0.12,
+      });
+      gsap.to(r.querySelector(".xp-detail"), {
+        autoAlpha: 1,
+        x: 0,
+        duration: 0.7,
+        ease: "power3.out",
+        delay: i * 0.12 + 0.05,
+      });
     });
-  });
+  };
 }
 
-/* ----------------------------------------------------------------
-   05 · connect — social links with a sliding-label hover
-   ---------------------------------------------------------------- */
+/* ---------------- 05 · connect ---------------- */
 function initConnect() {
   const list = document.querySelector<HTMLElement>("#social-list");
   if (!list) return;
@@ -219,20 +229,19 @@ function initConnect() {
     )
     .join("");
 
-  if (REDUCED) return;
-  gsap.from(list.querySelectorAll(".social"), {
-    y: 24,
-    opacity: 0,
-    duration: 0.6,
-    ease: "power3.out",
-    stagger: 0.08,
-    scrollTrigger: { trigger: list, start: "top 85%", toggleActions: "play none none reverse" },
-  });
+  const items = Array.from(list.querySelectorAll<HTMLElement>(".social"));
+  if (!REDUCED) gsap.set(items, { autoAlpha: 0, y: 24 });
+
+  plays.connect = () => {
+    if (REDUCED) {
+      gsap.set(items, { clearProps: "all" });
+      return;
+    }
+    gsap.to(items, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out", stagger: 0.08 });
+  };
 }
 
-/* ----------------------------------------------------------------
-   06 · contact — animated fields + a "transmit" button sequence
-   ---------------------------------------------------------------- */
+/* ---------------- 06 · contact ---------------- */
 function initContact() {
   const form = document.querySelector<HTMLFormElement>("#xmit");
   const status = document.querySelector<HTMLElement>("#xmit-status");
@@ -283,9 +292,7 @@ function initContact() {
   });
 }
 
-/* ----------------------------------------------------------------
-   footer — fill contact details from content
-   ---------------------------------------------------------------- */
+/* ---------------- footer ---------------- */
 function initFooter() {
   const mail = document.querySelector<HTMLAnchorElement>("#footer-mail");
   const phone = document.querySelector<HTMLAnchorElement>("#footer-phone");
@@ -301,9 +308,15 @@ function initFooter() {
   if (year) year.textContent = `© ${new Date().getFullYear()} voidloop-dev`;
 }
 
+/** Run a section's reveals + dynamic content animation. Called by the transition controller. */
+export function playSection(id: string) {
+  playReveals(id);
+  plays[id]?.();
+}
+
 export function initSections() {
-  initReveals();
-  initIntro();
+  initIntro(); // sets .intro-name text first
+  initReveals(); // then splits/queues it
   initSkills();
   initWork();
   initExperience();
