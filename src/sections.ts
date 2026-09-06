@@ -1,4 +1,13 @@
-import { gsap, ScrollTrigger, REDUCED, revealHeading, revealFade, scramble, onEnter } from "./lib/anim.ts";
+import {
+  gsap,
+  ScrollTrigger,
+  REDUCED,
+  revealHeading,
+  revealFade,
+  scramble,
+  onEnter,
+  magnetic,
+} from "./lib/anim.ts";
 import { profile, socials, skillGroups, projects, experience } from "./content.ts";
 
 /* ----------------------------------------------------------------
@@ -78,6 +87,14 @@ function initSkills() {
       },
       "top 92%",
     );
+    // re-decode on hover
+    let busy = false;
+    tag.addEventListener("pointerenter", () => {
+      if (busy || REDUCED) return;
+      busy = true;
+      scramble(tag, label, 360);
+      gsap.delayedCall(0.4, () => (busy = false));
+    });
   });
 }
 
@@ -220,6 +237,9 @@ function initContact() {
   const form = document.querySelector<HTMLFormElement>("#xmit");
   const status = document.querySelector<HTMLElement>("#xmit-status");
   if (!form || !status) return;
+
+  const btn0 = form.querySelector<HTMLButtonElement>(".xmit-btn");
+  if (btn0) magnetic(btn0, 0.4);
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();

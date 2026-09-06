@@ -84,3 +84,20 @@ export function scramble(el: HTMLElement, finalText: string, duration = 640) {
 export function onEnter(el: Element, fn: () => void, start = "top 85%") {
   ScrollTrigger.create({ trigger: el, start, once: true, onEnter: fn });
 }
+
+/** Element drifts toward the cursor while hovered, springs back on leave. */
+export function magnetic(el: HTMLElement, strength = 0.35) {
+  if (REDUCED) return;
+  el.addEventListener("pointermove", (e) => {
+    const r = el.getBoundingClientRect();
+    gsap.to(el, {
+      x: (e.clientX - (r.left + r.width / 2)) * strength,
+      y: (e.clientY - (r.top + r.height / 2)) * strength,
+      duration: 0.4,
+      ease: "power3.out",
+    });
+  });
+  el.addEventListener("pointerleave", () => {
+    gsap.to(el, { x: 0, y: 0, duration: 0.55, ease: "elastic.out(1, 0.45)" });
+  });
+}

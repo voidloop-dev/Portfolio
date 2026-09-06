@@ -1,4 +1,4 @@
-import { gsap } from "./lib/anim.ts";
+import { gsap, magnetic } from "./lib/anim.ts";
 
 /** Fixed nav: fades in after load, hides on scroll-down, shows on scroll-up. */
 export function initNav() {
@@ -6,6 +6,9 @@ export function initNav() {
   if (!nav) return;
   nav.hidden = false;
   gsap.from(nav, { y: -20, opacity: 0, duration: 0.6, ease: "power3.out", delay: 0.2 });
+
+  const mark = nav.querySelector<HTMLElement>(".nav-mark");
+  if (mark) magnetic(mark, 0.25);
 
   let last = window.scrollY;
   let hidden = false;

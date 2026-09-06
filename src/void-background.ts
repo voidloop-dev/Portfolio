@@ -11,9 +11,15 @@
 
 const DPR = () => Math.min(window.devicePixelRatio || 1, 2);
 const STAR_COUNT = 300;
-const CRUISE = 0.62; // idle forward speed — never zero
+const CRUISE = 0.42; // gentle idle drift — quiet enough to read over
 
 type Star = { a: number; r: number; speed: number; teal: boolean };
+
+/** Fire a warp burst — called on section changes, not on every scroll. */
+let impulse: ((strength: number) => void) | null = null;
+export function pulseWarp(strength = 1) {
+  impulse?.(strength);
+}
 
 export function initVoid(canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext("2d", { alpha: true })!;
@@ -29,11 +35,10 @@ export function initVoid(canvas: HTMLCanvasElement) {
   let offY = 0;
   let pointerTX = 0;
   let pointerTY = 0;
-  let throttle = 0; // 0..~0.6, from cursor distance to centre (eased)
+  let throttle = 0; // small cursor-distance nudge (eased)
   let throttleT = 0;
-  let boost = 0; // scroll-gesture punch, decays to 0
+  let boost = 0; // section-change burst, decays to 0
 
-  let lastScrollY = window.scrollY;
   let running = true;
 
   function seedStar(s: Star, atCore: boolean) {
@@ -62,21 +67,17 @@ export function initVoid(canvas: HTMLCanvasElement) {
 
   const onResize = () => build();
 
-  function onScroll() {
-    const y = window.scrollY;
-    const dy = y - lastScrollY;
-    lastScrollY = y;
-    boost += Math.min(Math.abs(dy) * 0.02, 2.2);
-  }
-  function onWheel(e: WheelEvent) {
-    boost += Math.min((Math.abs(e.deltaY) + Math.abs(e.deltaX)) * 0.006, 1.6);
-  }
+  // the burst — one hit per section change, then it decays back to cruise
+  impulse = (strength: number) => {
+    boost = Math.min(boost + strength * 2.6, 4);
+  };
+
   function onPointerMove(e: PointerEvent) {
     const nx = (e.clientX / window.innerWidth) * 2 - 1;
     const ny = (e.clientY / window.innerHeight) * 2 - 1;
-    pointerTX = nx * 95; // steer: where the core drifts toward
-    pointerTY = ny * 70;
-    throttleT = Math.min(Math.hypot(nx, ny), 1) * 0.55; // push toward the edge = faster
+    pointerTX = nx * 80; // steer: where the core drifts toward (no speed change)
+    pointerTY = ny * 60;
+    throttleT = Math.min(Math.hypot(nx, ny), 1) * 0.16; // barely perceptible
   }
   function onPointerLeave() {
     pointerTX = 0;
@@ -97,7 +98,7 @@ export function initVoid(canvas: HTMLCanvasElement) {
     offX += (pointerTX - offX) * k;
     offY += (pointerTY - offY) * k;
     throttle += (throttleT - throttle) * (1 - Math.exp(-2.5 * dt));
-    boost *= Math.exp(-2 * dt);
+    boost *= Math.exp(-1.7 * dt); // burst whoosh fades over ~1.5s
 
     const cx = w / 2 + offX;
     const cy = h / 2 + offY;
@@ -146,17 +147,14 @@ export function initVoid(canvas: HTMLCanvasElement) {
 
   build();
   window.addEventListener("resize", onResize, { passive: true });
-  window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("wheel", onWheel, { passive: true });
   window.addEventListener("pointermove", onPointerMove, { passive: true });
   document.addEventListener("pointerleave", onPointerLeave);
   requestAnimationFrame(frame);
 
   return () => {
     running = false;
+    impulse = null;
     window.removeEventListener("resize", onResize);
-    window.removeEventListener("scroll", onScroll);
-    window.removeEventListener("wheel", onWheel);
     window.removeEventListener("pointermove", onPointerMove);
     document.removeEventListener("pointerleave", onPointerLeave);
   };

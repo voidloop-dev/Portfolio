@@ -69,6 +69,7 @@
   gap: var(--s-5);
 }
 .nav-links a {
+  position: relative;
   font-family: var(--font-mono);
   font-size: var(--step--1);
   letter-spacing: 0.06em;
@@ -76,8 +77,25 @@
   text-decoration: none;
   transition: color 0.2s ease;
 }
-.nav-links a:hover {
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.28s cubic-bezier(0.6, 0, 0.2, 1);
+}
+.nav-links a:hover,
+.nav-links a.is-active {
   color: var(--signal);
+}
+.nav-links a:hover::after,
+.nav-links a.is-active::after {
+  transform: scaleX(1);
 }
 @media (max-width: 640px) {
   .nav-links {
@@ -233,13 +251,21 @@
   border: 1px solid var(--border);
   border-radius: 6px;
   background: color-mix(in srgb, var(--surface) 55%, transparent);
-  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   white-space: nowrap;
+  cursor: default;
 }
 .skill-tag:hover {
   color: var(--signal);
   border-color: var(--signal-dim);
   background: color-mix(in srgb, var(--signal) 8%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px -8px color-mix(in srgb, var(--signal) 50%, transparent);
 }
 
 /* ---------- 03 · work timeline ---------- */
@@ -309,6 +335,36 @@
   border-radius: 10px;
   overflow: hidden;
   background: var(--surface);
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+.proj-frame::after {
+  content: "view ↗";
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--signal);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.proj-frame video,
+.proj-frame-ph {
+  transition: transform 0.5s cubic-bezier(0.2, 0, 0.1, 1);
+}
+.proj:hover .proj-frame {
+  border-color: var(--signal-dim);
+  transform: translateY(-3px);
+}
+.proj:hover .proj-frame::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+.proj:hover .proj-frame video,
+.proj:hover .proj-frame-ph {
+  transform: scale(1.04);
 }
 .proj-frame video {
   width: 100%;
@@ -337,6 +393,7 @@
   letter-spacing: 0.1em;
 }
 .proj-body .proj-title {
+  position: relative;
   font-family: var(--font-serif);
   font-weight: 500;
   font-size: var(--step-2);
@@ -344,9 +401,18 @@
   text-decoration: none;
   display: inline-block;
   margin-bottom: var(--s-2);
+  background-image: linear-gradient(var(--signal), var(--signal));
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.3s ease, color 0.3s ease;
 }
 .proj-body .proj-title:hover {
   color: var(--signal);
+  background-size: 100% 1px;
+}
+.proj--left .proj-body .proj-title {
+  background-position: 100% 100%;
 }
 .proj-blurb {
   color: var(--text-2);
@@ -439,14 +505,29 @@
   border-top: 1px solid var(--border);
 }
 .social a {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr auto auto;
   gap: var(--s-4);
   align-items: center;
-  padding: var(--s-5) var(--s-2);
+  padding: var(--s-5) var(--s-3);
   border-bottom: 1px solid var(--border);
   text-decoration: none;
   color: var(--text);
+  isolation: isolate;
+}
+.social a::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--signal) 9%, transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.6, 0, 0.2, 1);
+}
+.social a:hover::before {
+  transform: scaleX(1);
 }
 .social-label {
   position: relative;
@@ -599,15 +680,22 @@
   margin-bottom: var(--s-8);
 }
 .footer-mail {
+  justify-self: start;
   font-family: var(--font-serif);
   font-size: var(--step-4);
   font-weight: 500;
   color: var(--text);
   text-decoration: none;
   letter-spacing: -0.02em;
+  background-image: linear-gradient(var(--signal), var(--signal));
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.35s ease, color 0.35s ease;
 }
 .footer-mail:hover {
   color: var(--signal);
+  background-size: 100% 1px;
 }
 .footer-phone {
   font-family: var(--font-mono);

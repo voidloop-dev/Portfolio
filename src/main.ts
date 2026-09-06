@@ -4,6 +4,7 @@ import { initVoid } from "./void-background.ts";
 import { runPreloader } from "./preloader.ts";
 import { initNav } from "./nav.ts";
 import { initSections } from "./sections.ts";
+import { initSectionObserver } from "./section-observer.ts";
 
 initVoid(document.getElementById("void") as HTMLCanvasElement);
 
@@ -16,6 +17,7 @@ runPreloader(() => {
 
   initNav();
   initSections();
+  initSectionObserver();
 
   const hero = site.querySelector(".hero")!;
   gsap.from(hero.children, {
