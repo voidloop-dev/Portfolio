@@ -38,6 +38,7 @@ export function initVoid(canvas: HTMLCanvasElement) {
   let throttle = 0; // small cursor-distance nudge (eased)
   let throttleT = 0;
   let boost = 0; // section-change burst, decays to 0
+  let holdUntil = 0; // keep the burst at peak briefly (a real "in hyperspace" beat)
 
   let running = true;
 
@@ -67,9 +68,10 @@ export function initVoid(canvas: HTMLCanvasElement) {
 
   const onResize = () => build();
 
-  // the burst — one hit per section change: jump to hyperspace, then decay to cruise
+  // the burst — one hit per section change: jump to hyperspace, hold, then decay
   impulse = (strength: number) => {
     boost = Math.min(boost + strength * 7.5, 9.5);
+    holdUntil = performance.now() + 340;
   };
 
   function onPointerMove(e: PointerEvent) {
@@ -98,7 +100,7 @@ export function initVoid(canvas: HTMLCanvasElement) {
     offX += (pointerTX - offX) * k;
     offY += (pointerTY - offY) * k;
     throttle += (throttleT - throttle) * (1 - Math.exp(-2.5 * dt));
-    boost *= Math.exp(-1.7 * dt); // burst whoosh fades over ~1.5s
+    if (now >= holdUntil) boost *= Math.exp(-2.1 * dt); // hold at peak, then fade over ~1s
 
     const cx = w / 2 + offX;
     const cy = h / 2 + offY;

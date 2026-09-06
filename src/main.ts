@@ -4,20 +4,17 @@ import { initVoid } from "./void-background.ts";
 import { runPreloader } from "./preloader.ts";
 import { initNav } from "./nav.ts";
 import { initSections } from "./sections.ts";
-import { initSectionTransitions } from "./section-observer.ts";
+import { initDeck } from "./deck.ts";
 
 initVoid(document.getElementById("void") as HTMLCanvasElement);
-
-document.body.style.overflow = "hidden";
 
 runPreloader(() => {
   const site = document.getElementById("site")!;
   site.hidden = false;
-  document.body.style.overflow = "";
 
   initNav();
   initSections();
-  initSectionTransitions();
+  initDeck();
 
   const hero = site.querySelector(".hero")!;
   gsap.from(hero.children, {
@@ -26,5 +23,6 @@ runPreloader(() => {
     duration: 0.9,
     ease: "power3.out",
     stagger: 0.12,
+    delay: 0.15,
   });
 });

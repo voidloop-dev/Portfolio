@@ -1,12 +1,4 @@
-import {
-  gsap,
-  ScrollTrigger,
-  REDUCED,
-  queueReveal,
-  playReveals,
-  scramble,
-  magnetic,
-} from "./lib/anim.ts";
+import { gsap, REDUCED, queueReveal, playReveals, scramble, magnetic } from "./lib/anim.ts";
 import { profile, socials, skillGroups, projects, experience } from "./content.ts";
 
 /** Per-section "play" fns for dynamic inner content — run when the section opens. */
@@ -28,8 +20,10 @@ function initIntro() {
   // name text is set before queueReveal splits it — do it here, before initReveals
   if (name) name.textContent = profile.name;
 
+  let rotorStarted = false;
   plays.about = () => {
-    if (!word || REDUCED) return;
+    if (!word || REDUCED || rotorStarted) return;
+    rotorStarted = true;
     const roles = profile.roles;
     let i = 0;
     const cycle = () => {
@@ -136,14 +130,14 @@ function initWork() {
     );
   }
 
-  // line fill, scrubbed to section progress
-  ScrollTrigger.create({
-    trigger: tl,
-    start: "top 55%",
-    end: "bottom 75%",
-    scrub: true,
-    onUpdate: (self) => gsap.set(fill, { scaleY: self.progress }),
-  });
+  // line fill, tied to how far you've scrolled through the (internally-scrolling) page
+  const page = document.getElementById("work")!;
+  const updateFill = () => {
+    const max = page.scrollHeight - page.clientHeight;
+    gsap.set(fill, { scaleY: max > 4 ? Math.min(page.scrollTop / max, 1) : 0 });
+  };
+  page.addEventListener("scroll", updateFill, { passive: true });
+  window.addEventListener("resize", updateFill, { passive: true });
 
   // hover-play demo video
   tl.querySelectorAll<HTMLVideoElement>(".proj-frame video").forEach((v) => {
@@ -323,5 +317,4 @@ export function initSections() {
   initConnect();
   initContact();
   initFooter();
-  ScrollTrigger.refresh();
 }

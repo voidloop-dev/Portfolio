@@ -67,9 +67,16 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
+html,
 body {
-  min-height: 100%;
-  overflow-x: hidden;
+  height: 100%;
+  overflow: hidden; /* paged deck owns navigation — see deck.ts */
+}
+/* reduced-motion: fall back to a normal scrolling document */
+html.reduced-deck,
+html.reduced-deck body {
+  height: auto;
+  overflow: visible;
 }
 
 h1,
@@ -254,20 +261,18 @@ a {
   box-shadow: 0 0 12px color-mix(in srgb, var(--signal) 55%, transparent);
 }
 
-/* ---------- site (placeholder hero) ---------- */
+/* ---------- site / hero ---------- */
 #site {
-  position: relative;
+  position: fixed;
+  inset: 0;
   z-index: 1;
 }
+html.reduced-deck #site {
+  position: static;
+}
 .hero {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   gap: var(--s-4);
   text-align: center;
-  padding: var(--s-6);
 }
 .hero h1 {
   font-size: var(--step-5);
@@ -287,7 +292,10 @@ a {
   max-width: 34rem;
 }
 .hero-hint {
-  margin-top: var(--s-8);
+  position: absolute;
+  bottom: var(--s-7);
+  left: 50%;
+  transform: translateX(-50%);
   font-family: var(--font-mono);
   font-size: var(--step--1);
   letter-spacing: 0.35em;
@@ -306,10 +314,6 @@ a {
     opacity: 0.9;
   }
 }
-.spacer {
-  height: 160vh;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

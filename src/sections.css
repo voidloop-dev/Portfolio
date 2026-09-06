@@ -14,25 +14,54 @@
   will-change: transform;
 }
 
-/* ---------- layout scaffold ---------- */
-.section {
-  position: relative;
+/* ---------- paged deck: each section is a full-screen page ---------- */
+.slide {
+  position: fixed;
+  inset: 0;
   z-index: 1;
-  max-width: 68rem;
-  margin: 0 auto;
-  padding: var(--s-9) var(--s-5);
-}
-
-/* section gating: hidden (but keeps layout) until the warp transition reveals it */
-[data-gate="closed"] {
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  align-items: center;
+  gap: var(--s-3);
+  padding: calc(var(--s-9) + 32px) var(--s-5) var(--s-8);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
-[data-gate="open"] {
+.slide::-webkit-scrollbar {
+  width: 6px;
+}
+.slide::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+.slide--active {
   opacity: 1;
   visibility: visible;
-  transition: opacity 0.5s ease;
+  pointer-events: auto;
+}
+/* content column inside a page */
+.slide > * {
+  width: 100%;
+  max-width: 68rem;
+  flex-shrink: 0;
+}
+
+/* reduced-motion: pages become normal stacked sections */
+html.reduced-deck .slide {
+  position: relative;
+  inset: auto;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  overflow: visible;
+  padding: var(--s-9) var(--s-5);
+  margin: 0 auto;
 }
 .section-title {
   font-family: var(--font-serif);
@@ -678,13 +707,13 @@
 }
 
 /* ---------- footer ---------- */
-#footer {
-  position: relative;
-  z-index: 1;
-  max-width: 68rem;
-  margin: var(--s-9) auto 0;
-  padding: var(--s-8) var(--s-5) var(--s-6);
+#footer.slide {
+  justify-content: safe center;
+  gap: var(--s-8);
+}
+html.reduced-deck #footer.slide {
   border-top: 1px solid var(--border);
+  margin-top: var(--s-9);
 }
 .footer-cta {
   display: grid;
