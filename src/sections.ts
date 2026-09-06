@@ -351,7 +351,12 @@ function initContact() {
   const btn0 = form.querySelector<HTMLButtonElement>(".xmit-btn");
   if (btn0) magnetic(btn0, 0.4);
 
-  const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY as string | undefined;
+  // Web3Forms access keys are public by design (they ship in client JS). The env
+  // var lets you override / rotate without a code change; the fallback means the
+  // form just works on deploy with zero config.
+  const WEB3FORMS_KEY =
+    (import.meta.env.VITE_WEB3FORMS_KEY as string | undefined) ||
+    "d7a8b674-a687-4e30-b735-9432021c7edd";
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
