@@ -351,45 +351,70 @@ function initContact() {
   const btn0 = form.querySelector<HTMLButtonElement>(".xmit-btn");
   if (btn0) magnetic(btn0, 0.4);
 
-  form.addEventListener("submit", (e) => {
+  const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY as string | undefined;
+
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = form.querySelector<HTMLButtonElement>(".xmit-btn")!;
     const label = btn.querySelector<HTMLElement>(".xmit-label")!;
     const sweep = btn.querySelector<HTMLElement>(".xmit-sweep")!;
+    const say = (msg: string, state: "ok" | "err") => {
+      status.textContent = msg;
+      status.dataset.state = state;
+    };
+    const reset = (delay = 4) =>
+      gsap.delayedCall(delay, () => {
+        label.textContent = "Transmit signal";
+        btn.disabled = false;
+        gsap.set(sweep, { xPercent: -100 });
+      });
 
     if (!form.checkValidity()) {
-      status.textContent = "// fill every field before transmitting";
-      status.dataset.state = "err";
+      say("// fill every field before transmitting", "err");
       return;
     }
+    // honeypot — bots tick it, humans never see it
+    if ((form.querySelector('[name="botcheck"]') as HTMLInputElement | null)?.checked) return;
 
     btn.disabled = true;
     status.textContent = "";
     delete status.dataset.state;
     label.textContent = "transmitting…";
+    const sending = REDUCED
+      ? null
+      : gsap.fromTo(sweep, { xPercent: -100 }, { xPercent: 0, duration: 1.4, ease: "none" });
 
-    if (REDUCED) {
+    try {
+      if (!WEB3FORMS_KEY) throw new Error("no-key");
+      const body = new FormData(form);
+      body.append("access_key", WEB3FORMS_KEY);
+      body.append("subject", "voidloop-dev — new signal");
+      body.append("from_name", "voidloop-dev portfolio");
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body,
+      });
+      const json = (await res.json()) as { success?: boolean; message?: string };
+      sending?.kill();
+      if (!json.success) throw new Error(json.message || "failed");
+      if (!REDUCED) gsap.to(sweep, { xPercent: 100, duration: 0.4, ease: "power2.in" });
       label.textContent = "signal sent ✓";
-      status.textContent = "// demo — wire this to a form service next";
-      status.dataset.state = "ok";
-      return;
+      say("// received — I'll get back to you", "ok");
+      form.reset();
+      reset(4);
+    } catch (err) {
+      sending?.kill();
+      gsap.set(sweep, { xPercent: -100 });
+      label.textContent = "Transmit signal";
+      btn.disabled = false;
+      say(
+        (err as Error).message === "no-key"
+          ? `// form not wired yet — email me at ${profile.email}`
+          : `// transmission failed — email me at ${profile.email}`,
+        "err",
+      );
     }
-
-    gsap
-      .timeline({
-        onComplete: () => {
-          label.textContent = "signal sent ✓";
-          status.textContent = "// demo — wire this to a form service next";
-          status.dataset.state = "ok";
-          gsap.delayedCall(3, () => {
-            label.textContent = "Transmit signal";
-            btn.disabled = false;
-            form.reset();
-          });
-        },
-      })
-      .fromTo(sweep, { xPercent: -100 }, { xPercent: 0, duration: 0.8, ease: "power2.inOut" })
-      .to(sweep, { xPercent: 100, duration: 0.5, ease: "power2.in" });
   });
 }
 

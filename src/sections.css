@@ -670,6 +670,13 @@ html.reduced-deck .skill-tag > span {
   gap: var(--s-6);
   max-width: 38rem;
 }
+.xmit-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
 .field {
   position: relative;
 }
