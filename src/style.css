@@ -1,14 +1,50 @@
+/* ============================================================
+   voidloop-dev — tokens + base. See DESIGN.md for the rationale.
+   ============================================================ */
 :root {
-  --void-0: #04040a; /* deepest */
-  --void-1: #0a0a18;
-  --void-2: #12122a;
-  --text: #e9e9f4;
-  --text-dim: #8a8aaa;
-  --accent: #7c5cff; /* violet */
-  --accent-2: #22d3ee; /* cyan */
-  --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", "Cascadia Code", Menlo, Consolas,
-    monospace;
-  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* --- colour: deep blue-black, tonal elevation, one teal signal --- */
+  --bg: #0b0e14;
+  --surface: #121722;
+  --raised: #1b2230;
+  --border: #28303f;
+
+  --text: #e6e9f0;
+  --text-2: #9aa4b8;
+  --text-3: #5d6677;
+
+  --signal: #57d9c6;
+  --signal-dim: #2e7d74;
+  --amber: #e4b363;
+
+  --ok: #5fb88f;
+  --warn: #e5b567;
+  --err: #e5766b;
+
+  /* --- type --- */
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* fluid major-third scale */
+  --step--1: clamp(0.78rem, 0.75rem + 0.1vw, 0.83rem);
+  --step-0: clamp(0.95rem, 0.9rem + 0.2vw, 1rem);
+  --step-1: clamp(1.15rem, 1rem + 0.6vw, 1.35rem);
+  --step-2: clamp(1.4rem, 1.15rem + 1vw, 1.8rem);
+  --step-3: clamp(1.75rem, 1.35rem + 1.8vw, 2.4rem);
+  --step-4: clamp(2.1rem, 1.5rem + 3vw, 3.2rem);
+  --step-5: clamp(2.6rem, 1.6rem + 5vw, 4.6rem);
+
+  /* --- space (8px scale) --- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+
   color-scheme: dark;
 }
 
@@ -20,15 +56,48 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: var(--void-0);
+  background: var(--bg);
   color: var(--text);
-  font-family: var(--sans);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
-
 body {
   min-height: 100%;
   overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+a {
+  color: var(--signal);
+  text-underline-offset: 0.15em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* eyebrow / label — the mono voice */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-3);
 }
 
 /* ---------- the void background ---------- */
@@ -39,8 +108,7 @@ body {
   height: 100vh;
   z-index: 0;
   display: block;
-  background:
-    radial-gradient(120% 80% at 50% 0%, var(--void-2) 0%, var(--void-1) 40%, var(--void-0) 100%);
+  background: radial-gradient(130% 90% at 50% -10%, #161c2b 0%, #0e121b 45%, var(--bg) 100%);
 }
 
 /* ---------- preloader ---------- */
@@ -48,11 +116,13 @@ body {
   position: fixed;
   inset: 0;
   z-index: 10;
-  display: grid;
-  place-items: center;
-  background: color-mix(in srgb, var(--void-0) 78%, transparent);
-  backdrop-filter: blur(2px);
-  transition: opacity 0.6s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  backdrop-filter: blur(3px);
+  transition: opacity 0.55s ease;
 }
 #preloader.done {
   opacity: 0;
@@ -60,81 +130,80 @@ body {
 }
 
 .pl-inner {
-  width: min(90vw, 34rem);
-  text-align: center;
-  padding: 2rem;
+  width: min(90vw, 33rem);
+  padding: var(--s-6);
 }
 
 .pl-name {
-  margin: 0 0 1.6rem;
-  font-family: var(--mono);
-  font-size: clamp(1.5rem, 4vw, 2.4rem);
+  margin: 0 0 var(--s-6);
+  font-family: var(--font-display);
+  font-size: var(--step-3);
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.02em;
   color: var(--text);
-  text-shadow: 0 0 24px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 .pl-dash {
-  color: var(--accent-2);
+  color: var(--signal);
 }
 
 .pl-loop {
-  margin: 0 auto 1.5rem;
-  padding: 1rem 1.2rem;
+  margin: 0 auto var(--s-5);
+  padding: var(--s-4) var(--s-5);
   width: fit-content;
   max-width: 100%;
   overflow-x: auto;
   text-align: left;
-  font-family: var(--mono);
-  font-size: clamp(0.8rem, 2.4vw, 1rem);
-  line-height: 1.7;
-  color: var(--text-dim);
-  background: color-mix(in srgb, var(--void-1) 70%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
-  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  line-height: 1.75;
+  color: var(--text-2);
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 8px;
 }
 .pl-loop .kw {
-  color: var(--accent);
+  color: var(--signal);
 }
 .pl-loop .num {
-  color: var(--accent-2);
+  color: var(--amber);
 }
 .pl-loop .fn {
-  color: #e9e9f4;
+  color: var(--text);
 }
 .pl-loop .cm {
-  color: #5a5a78;
+  color: var(--text-3);
 }
 .pl-loop #pl-i {
-  color: var(--accent-2);
+  color: var(--signal);
+  font-weight: 700;
 }
 
 .pl-status {
   display: flex;
   align-items: baseline;
   justify-content: center;
-  gap: 0.6rem;
-  margin-bottom: 0.7rem;
-  font-family: var(--mono);
+  gap: var(--s-3);
+  margin-bottom: var(--s-3);
+  font-family: var(--font-mono);
 }
 .pl-loading {
-  font-size: 0.9rem;
-  letter-spacing: 0.35em;
+  font-size: var(--step--1);
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--text-dim);
+  color: var(--text-3);
 }
 .pl-pct {
-  font-size: 1.05rem;
+  font-size: var(--step-0);
   font-variant-numeric: tabular-nums;
   color: var(--text);
 }
 
 .pl-bar {
   position: relative;
-  height: 3px;
+  height: 2px;
   width: 100%;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--text) 10%, transparent);
+  background: var(--border);
   overflow: hidden;
 }
 .pl-bar-fill {
@@ -142,11 +211,11 @@ body {
   inset: 0 auto 0 0;
   width: 0%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 60%, transparent);
+  background: var(--signal);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--signal) 55%, transparent);
 }
 
-/* ---------- site (placeholder) ---------- */
+/* ---------- site (placeholder hero) ---------- */
 #site {
   position: relative;
   z-index: 1;
@@ -157,39 +226,40 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
+  gap: var(--s-4);
   text-align: center;
+  padding: var(--s-6);
 }
 .hero h1 {
-  margin: 0;
-  font-family: var(--mono);
-  font-size: clamp(2rem, 7vw, 4.5rem);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: var(--step-5);
+}
+.hero h1 .accent {
+  color: var(--signal);
 }
 .hero-sub {
   margin: 0;
-  color: var(--text-dim);
-  font-size: 1.1rem;
+  color: var(--text-2);
+  font-size: var(--step-1);
+  max-width: 34rem;
 }
 .hero-hint {
-  margin-top: 3rem;
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.4em;
+  margin-top: var(--s-8);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.35em;
   text-transform: uppercase;
-  color: var(--text-dim);
-  animation: bob 2s ease-in-out infinite;
+  color: var(--text-3);
+  animation: bob 2.4s ease-in-out infinite;
 }
 @keyframes bob {
   0%,
   100% {
     transform: translateY(0);
-    opacity: 0.5;
+    opacity: 0.45;
   }
   50% {
     transform: translateY(6px);
-    opacity: 1;
+    opacity: 0.9;
   }
 }
 .spacer {
@@ -197,8 +267,11 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.05ms !important;
   }
 }
