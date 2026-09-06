@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>voidloop-dev</title>
+    <meta name="description" content="voidloop-dev — portfolio" />
+  </head>
+  <body>
+    <!-- the void: a persistent scroll-reactive background behind everything -->
+    <canvas id="void" aria-hidden="true"></canvas>
+
+    <!-- preloader overlay -->
+    <div id="preloader">
+      <div class="pl-inner">
+        <p class="pl-name">voidloop<span class="pl-dash">-</span>dev</p>
+
+        <pre class="pl-loop" aria-hidden="true"><code><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt;= <span class="num">100</span>; ++i) {
+    <span class="fn">load</span>(i);  <span class="cm">// i = <span id="pl-i">0</span></span>
+}</code></pre>
+
+        <div class="pl-status">
+          <span class="pl-loading">loading</span>
+          <span class="pl-pct"><span id="pl-pct">0</span>%</span>
+        </div>
+
+        <div class="pl-bar" role="progressbar" aria-label="loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="pl-bar-fill" id="pl-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- the actual page (revealed after load) — placeholder for now -->
+    <main id="site" hidden>
+      <section class="hero">
+        <h1>voidloop-dev</h1>
+        <p class="hero-sub">the loop never really ends.</p>
+        <p class="hero-hint">scroll</p>
+      </section>
+      <section class="spacer"></section>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
