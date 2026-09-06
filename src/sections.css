@@ -249,32 +249,50 @@ html.reduced-deck .slide {
   }
 }
 
-/* ---------- 02 · skills ---------- */
+/* ---------- 02 · skills — dull rows; hover a head to reveal that row ---------- */
 .skills-wrap {
   display: grid;
-  gap: var(--s-6);
+  gap: var(--s-1);
 }
 .skill-group {
   display: grid;
-  grid-template-columns: 8rem 1fr;
+  grid-template-columns: 11rem 1fr;
   gap: var(--s-5);
   align-items: start;
-  padding-top: var(--s-4);
+  padding: var(--s-4) var(--s-3);
   border-top: 1px solid var(--border);
+  border-radius: 8px;
+  opacity: 0.4; /* dull by default */
+  transition: opacity 0.4s ease, background 0.4s ease;
+  cursor: default;
+  outline: none;
+}
+.skill-group:hover,
+.skill-group:focus-visible,
+.skill-group:focus-within {
+  opacity: 1;
+  background: color-mix(in srgb, var(--signal) 6%, transparent);
 }
 @media (max-width: 640px) {
   .skill-group {
     grid-template-columns: 1fr;
-    gap: var(--s-3);
+    gap: var(--s-2);
   }
 }
 .skill-group-name {
   font-family: var(--font-mono);
   font-size: var(--step--1);
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--signal);
+  color: var(--text-3);
   margin: 0;
+  transition: color 0.35s ease, letter-spacing 0.35s ease;
+}
+.skill-group:hover .skill-group-name,
+.skill-group:focus-visible .skill-group-name,
+.skill-group:focus-within .skill-group-name {
+  color: var(--signal);
+  letter-spacing: 0.22em;
 }
 .skill-tags {
   list-style: none;
@@ -282,31 +300,34 @@ html.reduced-deck .slide {
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--s-2) var(--s-3);
+  gap: var(--s-2) var(--s-4);
 }
 .skill-tag {
   font-family: var(--font-mono);
   font-size: var(--step-0);
   color: var(--text);
-  padding: 6px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--surface) 55%, transparent);
-  transition:
-    border-color 0.2s ease,
-    color 0.2s ease,
-    background 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  overflow: hidden;
   white-space: nowrap;
-  cursor: default;
 }
-.skill-tag:hover {
-  color: var(--signal);
-  border-color: var(--signal-dim);
-  background: color-mix(in srgb, var(--signal) 8%, transparent);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px -8px color-mix(in srgb, var(--signal) 50%, transparent);
+.skill-tag > span {
+  display: inline-block;
+  transform: translateY(120%);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.6, 0, 0.2, 1), opacity 0.35s ease;
+}
+.skill-group:hover .skill-tag > span,
+.skill-group:focus-visible .skill-tag > span,
+.skill-group:focus-within .skill-tag > span {
+  transform: none;
+  opacity: 1;
+  transition-delay: calc(var(--i) * 0.04s);
+}
+html.reduced-deck .skill-group {
+  opacity: 1;
+}
+html.reduced-deck .skill-tag > span {
+  transform: none;
+  opacity: 1;
 }
 
 /* ---------- 03 · work timeline ---------- */

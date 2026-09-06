@@ -71,7 +71,7 @@ export function initVoid(canvas: HTMLCanvasElement) {
   // the burst — one hit per section change: jump to hyperspace, hold, then decay
   impulse = (strength: number) => {
     boost = Math.min(boost + strength * 7.5, 9.5);
-    holdUntil = performance.now() + 340;
+    holdUntil = performance.now() + 460;
   };
 
   function onPointerMove(e: PointerEvent) {

@@ -1,4 +1,12 @@
-import { gsap, REDUCED, queueReveal, playReveals, scramble, magnetic } from "./lib/anim.ts";
+import {
+  gsap,
+  REDUCED,
+  queueReveal,
+  playReveals,
+  prepWords,
+  playWords,
+  magnetic,
+} from "./lib/anim.ts";
 import { profile, socials, skillGroups, projects, experience } from "./content.ts";
 
 /** Per-section "play" fns for dynamic inner content — run when the section opens. */
@@ -13,15 +21,25 @@ function initReveals() {
 /* ---------------- 01 · intro ---------------- */
 function initIntro() {
   const name = document.querySelector<HTMLElement>(".intro-name");
-  const lines = document.querySelector(".intro-lines");
+  const lines = document.querySelector<HTMLElement>(".intro-lines");
   const word = document.querySelector<HTMLElement>("#iam-word");
-  if (lines) lines.innerHTML = profile.intro.map((l) => `<p>${l}</p>`).join("");
   if (word) word.textContent = profile.roles[0]!;
   // name text is set before queueReveal splits it — do it here, before initReveals
   if (name) name.textContent = profile.name;
 
+  // intro paragraphs — word-by-word reveal, registered under the "about" section
+  const introLines: HTMLElement[] = [];
+  if (lines) {
+    lines.innerHTML = profile.intro.map((l) => `<p>${l}</p>`).join("");
+    lines.querySelectorAll<HTMLElement>("p").forEach((p) => {
+      prepWords(p);
+      introLines.push(p);
+    });
+  }
+
   let rotorStarted = false;
   plays.about = () => {
+    introLines.forEach((p, i) => playWords(p, 0.15 + i * 0.14, 0.02));
     if (!word || REDUCED || rotorStarted) return;
     rotorStarted = true;
     const roles = profile.roles;
@@ -52,38 +70,37 @@ function initSkills() {
   wrap.innerHTML = skillGroups
     .map(
       (g) => `
-      <div class="skill-group">
+      <div class="skill-group" tabindex="0">
         <p class="skill-group-name">${g.name}</p>
         <ul class="skill-tags">
-          ${g.items.map((s) => `<li class="skill-tag" data-skill="${s}">${s}</li>`).join("")}
+          ${g.items
+            .map(
+              (s, i) =>
+                `<li class="skill-tag" style="--i:${i}"><span>${s}</span></li>`,
+            )
+            .join("")}
         </ul>
       </div>`,
     )
     .join("");
 
-  const tags = Array.from(wrap.querySelectorAll<HTMLElement>(".skill-tag"));
-  if (!REDUCED) gsap.set(tags, { autoAlpha: 0, y: 14 });
-
-  tags.forEach((tag) => {
-    const label = tag.dataset.skill ?? tag.textContent ?? "";
-    let busy = false;
-    tag.addEventListener("pointerenter", () => {
-      if (busy || REDUCED) return;
-      busy = true;
-      scramble(tag, label, 360);
-      gsap.delayedCall(0.4, () => (busy = false));
-    });
-  });
+  // rows are dull with their heads visible; hovering a head reveals that row's
+  // tags (text-rise) and lights it up — all handled in CSS. JS only does the
+  // section-entrance stagger of the heads.
+  const groups = Array.from(wrap.querySelectorAll<HTMLElement>(".skill-group"));
+  if (!REDUCED) gsap.set(groups, { autoAlpha: 0, y: 18 });
 
   plays.skills = () => {
     if (REDUCED) {
-      gsap.set(tags, { clearProps: "all" });
+      gsap.set(groups, { clearProps: "all" });
       return;
     }
-    tags.forEach((tag, idx) => {
-      const d = (idx % 6) * 0.05 + Math.floor(idx / 6) * 0.08;
-      gsap.to(tag, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power2.out", delay: d });
-      gsap.delayedCall(d, () => scramble(tag, tag.dataset.skill ?? "", 520));
+    gsap.to(groups, {
+      autoAlpha: 1,
+      y: 0,
+      duration: 0.5,
+      ease: "power3.out",
+      stagger: 0.07,
     });
   };
 }
@@ -129,6 +146,12 @@ function initWork() {
       gsap.set(c, { autoAlpha: 0, x: c.classList.contains("proj--right") ? 48 : -48 }),
     );
   }
+  // project descriptions — word-by-word reveal, played per card
+  const blurbs = cards.map((c) => {
+    const b = c.querySelector<HTMLElement>(".proj-blurb");
+    if (b) prepWords(b);
+    return b;
+  });
 
   // line fill, tied to how far you've scrolled through the (internally-scrolling) page
   const page = document.getElementById("work")!;
@@ -149,11 +172,15 @@ function initWork() {
   plays.work = () => {
     if (REDUCED) {
       gsap.set(cards, { clearProps: "all" });
+      blurbs.forEach((b) => b && gsap.set(b.querySelectorAll(".w-inner"), { clearProps: "all" }));
       return;
     }
-    cards.forEach((c, i) =>
-      gsap.to(c, { autoAlpha: 1, x: 0, duration: 0.75, ease: "power3.out", delay: i * 0.12 }),
-    );
+    cards.forEach((c, i) => {
+      const d = i * 0.12;
+      gsap.to(c, { autoAlpha: 1, x: 0, duration: 0.75, ease: "power3.out", delay: d });
+      const b = blurbs[i];
+      if (b) playWords(b, d + 0.25, 0.014);
+    });
   };
 }
 

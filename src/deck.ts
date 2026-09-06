@@ -11,8 +11,11 @@ import { playSection } from "./sections.ts";
  * Tall pages (work, experience) scroll internally; only scrolling past their
  * top/bottom edge triggers a page change.
  */
-const REVEAL_AT = 460; // ms into the transition when the next page appears
-const COOLDOWN = 1150; // ms lock after a change
+/* strict, non-overlapping phases */
+const EXIT = 0.3; // s — the current page leaves completely
+const WARP_SOLO = 0.72; // s — empty screen, warp burst only
+const ENTER = 0.55; // s — the next page arrives + runs its own reveals
+const TAIL = 0.15; // s — small buffer before input unlocks
 
 export function initDeck() {
   const slides = Array.from(
@@ -48,27 +51,40 @@ export function initDeck() {
     const cur = slides[active]!;
     const nxt = slides[to]!;
 
-    gsap.to(cur, { autoAlpha: 0, y: dir * -46, duration: 0.26, ease: "power2.in" });
-    pulseWarp(1.25);
+    // strict sequence — no phase overlaps another:
+    const tl = gsap.timeline({
+      onComplete: () => {
+        busy = false;
+      },
+    });
 
-    gsap.delayedCall(REVEAL_AT / 1000, () => {
+    // 1 · current page leaves completely
+    tl.to(cur, { autoAlpha: 0, y: dir * -55, duration: EXIT, ease: "power2.in" });
+
+    // 2 · page is gone → fire the warp onto an empty screen
+    tl.add(() => {
       cur.classList.remove("slide--active");
       gsap.set(cur, { clearProps: "all" });
+      pulseWarp(1.35);
+    });
+
+    // 3 · hold on the warp alone
+    tl.to({}, { duration: WARP_SOLO });
+
+    // 4 · warp done → the next page arrives and starts its own animation
+    tl.add(() => {
       nxt.scrollTop = 0;
       nxt.classList.add("slide--active");
-      gsap.fromTo(
-        nxt,
-        { autoAlpha: 0, y: dir * 46 },
-        { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out" },
-      );
       active = to;
       setNav(to);
       playSection(nxt.id);
     });
-
-    gsap.delayedCall(COOLDOWN / 1000, () => {
-      busy = false;
-    });
+    tl.fromTo(
+      nxt,
+      { autoAlpha: 0, y: dir * 55 },
+      { autoAlpha: 1, y: 0, duration: ENTER, ease: "power3.out" },
+    );
+    tl.to({}, { duration: TAIL });
   }
 
   const go = (dir: 1 | -1) => transition(active + dir, dir);
