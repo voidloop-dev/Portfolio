@@ -21,7 +21,6 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  justify-content: safe center;
   align-items: center;
   gap: var(--s-3);
   /* generous runway top & bottom so you can scroll to settle and read before
@@ -52,6 +51,19 @@
   width: 100%;
   max-width: 68rem;
   flex-shrink: 0;
+}
+/* centre the content when it fits; when it's taller than the viewport the auto
+   margins collapse and it top-aligns + scrolls (no clipping — unlike
+   justify-content:center). This is what makes the pages safe to fill with more
+   projects / experience / skills. Hero always fits, so it just centres. */
+.slide:not(.hero) > *:first-child {
+  margin-top: auto;
+}
+.slide:not(.hero) > *:last-child {
+  margin-bottom: auto;
+}
+.hero {
+  justify-content: center;
 }
 
 /* reduced-motion: pages become normal stacked sections */

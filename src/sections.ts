@@ -184,7 +184,7 @@ function initWork() {
       return;
     }
     cards.forEach((c, i) => {
-      const d = i * 0.12;
+      const d = Math.min(i, 5) * 0.12; // cap so a long list still animates snappily
       gsap.to(c, { autoAlpha: 1, x: 0, duration: 0.75, ease: "power3.out", delay: d });
       const b = blurbs[i];
       if (b) playWords(b, d + 0.25, 0.014);
@@ -223,19 +223,20 @@ function initExperience() {
       return;
     }
     rows.forEach((r, i) => {
+      const d = Math.min(i, 6) * 0.12;
       gsap.to(r.querySelector(".xp-period"), {
         autoAlpha: 1,
         x: 0,
         duration: 0.7,
         ease: "power3.out",
-        delay: i * 0.12,
+        delay: d,
       });
       gsap.to(r.querySelector(".xp-detail"), {
         autoAlpha: 1,
         x: 0,
         duration: 0.7,
         ease: "power3.out",
-        delay: i * 0.12 + 0.05,
+        delay: d + 0.05,
       });
     });
   };
