@@ -35,17 +35,18 @@ export function prepWords(el: HTMLElement): HTMLElement[] {
   return inners;
 }
 
-/** Stagger the words of a prepped element up into view. */
-export function playWords(el: HTMLElement, delay = 0, speed = 0.02) {
+/** Reset, then stagger the words of a prepped element up into view (replays every call). */
+export function playWords(el: HTMLElement, delay = 0, speed = 0.03) {
   const inners = el.querySelectorAll(".w-inner");
   if (REDUCED) {
     gsap.set(inners, { clearProps: "all" });
     return;
   }
+  gsap.set(inners, { yPercent: 115, opacity: 0 });
   gsap.to(inners, {
     yPercent: 0,
     opacity: 1,
-    duration: 0.55,
+    duration: 0.62,
     ease: "power3.out",
     stagger: speed,
     delay,
@@ -71,7 +72,7 @@ export function queueReveal(el: HTMLElement, kind: RevealKind) {
   gsap.set(el, { autoAlpha: 0, y: 24 });
 }
 
-/** Play (or replay) the reveals for one section. */
+/** Play (or replay — resets first) the reveals for one section. */
 export function playReveals(sectionId: string) {
   const arr = revealRegistry.get(sectionId);
   if (!arr) return;
@@ -83,9 +84,11 @@ export function playReveals(sectionId: string) {
       return;
     }
     if (kind === "heading") playWords(el, 0.04 + i * 0.04, 0.05);
-    else if (kind === "text") playWords(el, 0.1 + i * 0.06, 0.018);
-    else
+    else if (kind === "text") playWords(el, 0.1 + i * 0.06, 0.02);
+    else {
+      gsap.set(el, { autoAlpha: 0, y: 24 });
       gsap.to(el, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out", delay: 0.04 + i * 0.05 });
+    }
   });
 }
 

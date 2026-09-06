@@ -736,19 +736,16 @@ html.reduced-deck .skill-tag > span {
   color: var(--err);
 }
 
-/* ---------- footer ---------- */
-#footer.slide {
-  justify-content: safe center;
-  gap: var(--s-8);
+/* ---------- contact page ---------- */
+.contact .social-list {
+  margin-bottom: var(--s-7);
 }
-html.reduced-deck #footer.slide {
-  border-top: 1px solid var(--border);
-  margin-top: var(--s-9);
-}
-.footer-cta {
+.contact-foot {
   display: grid;
   gap: var(--s-2);
-  margin-bottom: var(--s-8);
+  margin-top: var(--s-8);
+  padding-top: var(--s-6);
+  border-top: 1px solid var(--border);
 }
 .footer-mail {
   justify-self: start;
@@ -780,6 +777,7 @@ html.reduced-deck #footer.slide {
 .footer-meta {
   display: flex;
   justify-content: space-between;
+  margin-top: var(--s-4);
   font-family: var(--font-mono);
   font-size: var(--step--1);
   color: var(--text-3);

@@ -241,13 +241,15 @@ function initExperience() {
   };
 }
 
-/* ---------------- 05 · connect ---------------- */
-function initConnect() {
+/* ---------------- 05 · contact (find me + form + direct line, one page) ---------------- */
+function initContact() {
+  // -- social links
   const list = document.querySelector<HTMLElement>("#social-list");
-  if (!list) return;
-  list.innerHTML = socials
-    .map(
-      (s) => `
+  let items: HTMLElement[] = [];
+  if (list) {
+    list.innerHTML = socials
+      .map(
+        (s) => `
       <li class="social">
         <a href="${s.href}" ${s.href.startsWith("http") ? 'target="_blank" rel="noopener noreferrer"' : ""}>
           <span class="social-label"><span>${s.label}</span><span>${s.label}</span></span>
@@ -255,23 +257,60 @@ function initConnect() {
           <span class="social-arrow">↗</span>
         </a>
       </li>`,
-    )
-    .join("");
+      )
+      .join("");
+    items = Array.from(list.querySelectorAll<HTMLElement>(".social"));
+    if (!REDUCED) gsap.set(items, { autoAlpha: 0, y: 24 });
+  }
 
-  const items = Array.from(list.querySelectorAll<HTMLElement>(".social"));
-  if (!REDUCED) gsap.set(items, { autoAlpha: 0, y: 24 });
+  // -- direct line
+  const mail = document.querySelector<HTMLAnchorElement>("#footer-mail");
+  const phone = document.querySelector<HTMLAnchorElement>("#footer-phone");
+  const year = document.querySelector<HTMLElement>("#footer-year");
+  if (mail) {
+    mail.textContent = profile.email;
+    mail.href = `mailto:${profile.email}`;
+  }
+  if (phone) {
+    phone.textContent = profile.phone;
+    phone.href = `tel:${profile.phone.replace(/[^\d+]/g, "")}`;
+  }
+  if (year) year.textContent = `© ${new Date().getFullYear()} voidloop-dev`;
 
-  plays.connect = () => {
+  const foot = document.querySelector<HTMLElement>(".contact-foot");
+  const fields = Array.from(document.querySelectorAll<HTMLElement>("#xmit .field"));
+  if (!REDUCED) {
+    if (foot) gsap.set(foot, { autoAlpha: 0, y: 24 });
+    gsap.set(fields, { autoAlpha: 0, y: 18 });
+  }
+
+  plays.contact = () => {
     if (REDUCED) {
-      gsap.set(items, { clearProps: "all" });
+      const all: HTMLElement[] = [...items, ...fields];
+      if (foot) all.push(foot);
+      gsap.set(all, { clearProps: "all" });
       return;
     }
-    gsap.to(items, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out", stagger: 0.08 });
+    if (items.length)
+      gsap.fromTo(
+        items,
+        { autoAlpha: 0, y: 24 },
+        { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out", stagger: 0.07, delay: 0.1 },
+      );
+    gsap.fromTo(
+      fields,
+      { autoAlpha: 0, y: 18 },
+      { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out", stagger: 0.06, delay: 0.35 },
+    );
+    if (foot)
+      gsap.fromTo(
+        foot,
+        { autoAlpha: 0, y: 24 },
+        { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out", delay: 0.55 },
+      );
   };
-}
 
-/* ---------------- 06 · contact ---------------- */
-function initContact() {
+  // -- the form itself
   const form = document.querySelector<HTMLFormElement>("#xmit");
   const status = document.querySelector<HTMLElement>("#xmit-status");
   if (!form || !status) return;
@@ -321,23 +360,7 @@ function initContact() {
   });
 }
 
-/* ---------------- footer ---------------- */
-function initFooter() {
-  const mail = document.querySelector<HTMLAnchorElement>("#footer-mail");
-  const phone = document.querySelector<HTMLAnchorElement>("#footer-phone");
-  const year = document.querySelector<HTMLElement>("#footer-year");
-  if (mail) {
-    mail.textContent = profile.email;
-    mail.href = `mailto:${profile.email}`;
-  }
-  if (phone) {
-    phone.textContent = profile.phone;
-    phone.href = `tel:${profile.phone.replace(/[^\d+]/g, "")}`;
-  }
-  if (year) year.textContent = `© ${new Date().getFullYear()} voidloop-dev`;
-}
-
-/** Run a section's reveals + dynamic content animation. Called by the transition controller. */
+/** Run a section's reveals + dynamic content animation. Called by the deck. */
 export function playSection(id: string) {
   playReveals(id);
   plays[id]?.();
@@ -349,7 +372,5 @@ export function initSections() {
   initSkills();
   initWork();
   initExperience();
-  initConnect();
   initContact();
-  initFooter();
 }
