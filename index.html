@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>voidloop-dev</title>
     <meta name="description" content="voidloop-dev — portfolio" />
+    <style>
+      /* critical: keeps things dark + centred before the bundle loads */
+      html,
+      body {
+        margin: 0;
+        background: #04040a;
+        color: #e9e9f4;
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      }
+      #preloader {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      #site[hidden] {
+        display: none;
+      }
+    </style>
   </head>
   <body>
     <!-- the void: a persistent scroll-reactive background behind everything -->

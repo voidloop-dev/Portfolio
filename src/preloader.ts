@@ -19,11 +19,12 @@ export function runPreloader(onDone: () => void) {
 
   const state = { p: 0 };
 
+  // one integer drives all three: the loop's `i`, the % and the bar — in lockstep
   const render = () => {
     const n = Math.round(state.p);
     iEl.textContent = String(n);
     pctEl.textContent = String(n);
-    fillEl.style.width = `${state.p}%`;
+    fillEl.style.width = `${n}%`;
     bar.setAttribute("aria-valuenow", String(n));
   };
 
